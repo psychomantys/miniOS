@@ -23,7 +23,6 @@ add_subdirectory(src/kernel/)
 
 LOAD_PROFILE("i386" "pc")
 
-message(STATUS "${ISA_CXX_FLAGS} ${PLATFORM_CXX_FLAGS}")
 SET (CMAKE_C_FLAGS "${ISA_C_FLAGS} ${PLATFORM_C_FLAGS}")
 SET (CMAKE_CXX_FLAGS "${ISA_CXX_FLAGS} ${PLATFORM_CXX_FLAGS}")
 if( DEFINED PLATFORM_LINK )
@@ -41,4 +40,15 @@ set(miniOS_SOURCES ${ISA_SRCS} ${PLATFORM_SRCS} ${GENERIC_KERNEL_SRCS})
 
 ADD_EXECUTABLE(miniOS
 	${miniOS_SOURCES} )
+
+if(UNIX)
+	add_custom_target(distclean @echo cleaning for source distribution)
+	ADD_CUSTOM_COMMAND(
+		COMMENT	"distribution clean"
+		DEPENDS	clean
+		COMMAND	sh
+		ARGS		-c '(for x in cmake.depends cmake_install.cmake cmake.check_depends CMakeCache.txt cmake.check_cache Makefile gmon.out '*~' CMakeTmp .backups CMakeFiles config.h miniOS \; do find . -iname \"$$x\" \; done ) | xargs -n1 rm -rf'
+		TARGET  distclean
+)
+ENDIF(UNIX)
 

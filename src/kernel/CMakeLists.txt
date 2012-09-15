@@ -12,8 +12,6 @@ FUNCTION(LOAD_PROFILE ISA PLATFORM)
 		"${KERNEL_BASE_DIR}/${ISA}/${PLATFORM}/*.c"
 		"${KERNEL_BASE_DIR}/${ISA}/${PLATFORM}/*.cpp")
 
-	message(STATUS "FILES: ${PLATFORM_SRCS}_ ${ISA_SRCS}")
-
 	# Load flags associated with ISA and Profile
 	INCLUDE("${KERNEL_BASE_DIR}/${ISA}/flags.cmake")
 	INCLUDE("${KERNEL_BASE_DIR}/${ISA}/${PLATFORM}/flags.cmake")

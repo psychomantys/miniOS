@@ -64,7 +64,7 @@ static void scroll()
 }
 
 // Writes a single character out to the screen.
-void monitor_put(char c)
+void monitor_put(const char c)
 {
    // The background colour is black (0), the foreground is white (15).
    u8int backColour = 0;
@@ -145,7 +145,7 @@ void monitor_clear()
 }
 
 // Outputs a null-terminated ASCII string to the monitor.
-void monitor_write(char *c)
+void monitor_write(const char *c)
 {
    int i = 0;
    while (c[i])
