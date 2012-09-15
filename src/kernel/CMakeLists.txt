@@ -1,30 +1,42 @@
 
 FUNCTION(LOAD_PROFILE ISA PLATFORM)
+	SET(KERNEL_BASE_DIR "src/kernel")
+
 	# Obtain sources for the ISA
-	FILE(GLOB ISA_SRCS "${ISA}/*.c" "${ISA}/*.cpp" "src/kernel/${ISA}/*.asm")
-	FILE(GLOB PLATFORM_SRCS "${ISA}/${PLATFORM}/*.cpp" "${ISA}/${PLATFORM}/*.c" "${ISA}/${PLATFORM}/*.asm")
+	FILE(GLOB ISA_SRCS
+		"${KERNEL_BASE_DIR}/${ISA}/*.cpp"
+		"${KERNEL_BASE_DIR}/${ISA}/*.asm"
+		"${KERNEL_BASE_DIR}/${ISA}/*.c")
+	FILE(GLOB PLATFORM_SRCS
+		"${KERNEL_BASE_DIR}/${ISA}/${PLATFORM}/*.asm"
+		"${KERNEL_BASE_DIR}/${ISA}/${PLATFORM}/*.c"
+		"${KERNEL_BASE_DIR}/${ISA}/${PLATFORM}/*.cpp")
+
+	message(STATUS "FILES: ${PLATFORM_SRCS}_ ${ISA_SRCS}")
 
 	# Load flags associated with ISA and Profile
-	INCLUDE("${ISA}/flags.cmake")
-	INCLUDE("${ISA}/${PLATFORM}/flags.cmake")
+	INCLUDE("${KERNEL_BASE_DIR}/${ISA}/flags.cmake")
+	INCLUDE("${KERNEL_BASE_DIR}/${ISA}/${PLATFORM}/flags.cmake")
 
 	# Now export our output variables
-	if( EXISTS "${ISA}/${PLATFORM}/link.ld" )
-		SET(PLATFORM_LINK "${ISA}/${PLATFORM}/link.ld")
-	elseif( EXISTS "${ISA}/link.ld" )
-		SET(PLATFORM_LINK "${ISA}/link.ld")
+	if( EXISTS "${KERNEL_BASE_DIR}/${ISA}/${PLATFORM}/link.ld" )
+		SET(PLATFORM_LINK "${KERNEL_BASE_DIR}/${ISA}/${PLATFORM}/link.ld")
+	elseif( EXISTS "${KERNEL_BASE_DIR}/${ISA}/link.ld" )
+		SET(PLATFORM_LINK "${KERNEL_BASE_DIR}/${ISA}/link.ld")
 	elseif( NOT DEFINED PLATFORM_LINK )
-		message(STATUS "WARNING: no link(maybe link.ld) defenide for ISA ${ISA} or plataform ${PLATFORM}")
-	endif( EXISTS "${ISA}/${PLATFORM}/link.ld" )
+		message(STATUS "WARNING: no link(maybe link.ld) defined for ISA ${ISA} or plataform ${PLATFORM}")
+	endif( EXISTS "${KERNEL_BASE_DIR}/${ISA}/${PLATFORM}/link.ld" )
 
 	SET(ISA_SRCS ${ISA_SRCS} PARENT_SCOPE)
 	SET(PLATFORM_SRCS ${PLATFORM_SRCS} PARENT_SCOPE)
 
 	# And specific flags
 	SET(ISA_C_FLAGS ${ISA_C_FLAGS} PARENT_SCOPE)
-	SET(ISA_CPP_FLAGS ${ISA_C_FLAGS} PARENT_SCOPE)
+	SET(ISA_CXX_FLAGS ${ISA_CXX_FLAGS} PARENT_SCOPE)
 	SET(ISA_ASM_FLAGS ${ISA_ASM_FLAGS} PARENT_SCOPE)
-ENDFUNCTION(LOAD_PROFILE)
 
-LOAD_PROFILE("i386" "pc")
+	SET(PLATFORM_LINK ${PLATFORM_LINK} PARENT_SCOPE)
+	SET(ISA_LINKER_FLAGS ${ISA_LINKER_FLAGS} PARENT_SCOPE)
+	SET(PLATFORM_LINKER_FLAGS ${PLATFORM_LINKER_FLAGS} PARENT_SCOPE)
+ENDFUNCTION(LOAD_PROFILE)
 
