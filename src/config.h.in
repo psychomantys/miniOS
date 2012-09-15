@@ -1,0 +1,3 @@
+#define miniOS_VERSION_MAJOR @miniOS_VERSION_MAJOR@
+#define miniOS_VERSION_MINOR @miniOS_VERSION_MINOR@
+
