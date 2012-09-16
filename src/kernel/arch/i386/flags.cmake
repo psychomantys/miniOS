@@ -1,6 +1,6 @@
-SET (ISA_C_FLAGS "-nostdlib -nostdinc -fno-builtin -fno-stack-protector -Wno-main -nostartfiles")
-SET (ISA_CXX_FLAGS "-nostdlib -nostdinc -fno-builtin -fno-stack-protector -Wno-main -nostartfiles")
-#SET (ISA_EXE_LINKER_FLAGS "-T${CMAKE_CURRENT_LIST_DIR}/src/kernel/link.ld")
+#SET (ISA_C_FLAGS "")
+#SET (ISA_CXX_FLAGS "")
+#SET (ISA_SOURCES "")
 
 # Obtain sources for the ISA
 #FILE(GLOB ISA_SRCS "*.c" "*.cpp" "*.asm")
