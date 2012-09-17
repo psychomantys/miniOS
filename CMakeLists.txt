@@ -1,9 +1,10 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required(VERSION 2.8)
 PROJECT(miniOS)
 
 #The version number.
 set(miniOS_VERSION_MAJOR 0)
-set(miniOS_VERSION_MINOR 1)
+set(miniOS_VERSION_MINOR 0)
+set(miniOS_VERSION_MINOR_FIX 1)
 
 # configure a header file to pass some of the CMake settings
 # to the source code

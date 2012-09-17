@@ -4,8 +4,8 @@ FUNCTION(LOAD_ISA_PROFILE ISA PLATFORM)
 
 	# Obtain sources for the ISA
 	FILE(GLOB ISA_SOURCES
-		"${KERNEL_BASE_DIR}/${ISA}/*.cpp"
 		"${KERNEL_BASE_DIR}/${ISA}/*.asm"
+		"${KERNEL_BASE_DIR}/${ISA}/*.cpp"
 		"${KERNEL_BASE_DIR}/${ISA}/*.c")
 	FILE(GLOB PLATFORM_SOURCES
 		"${KERNEL_BASE_DIR}/${ISA}/${PLATFORM}/*.asm"
@@ -43,9 +43,9 @@ FUNCTION(LOAD_COMPILER_PROFILE COMPILER)
 
 	# Obtain sources of the compiler
 	FILE(GLOB COMPILER_SOURCES
+		"${COMPILER_CODE_BASE_DIR}/${COMPILER}/*.asm"
 		"${COMPILER_CODE_BASE_DIR}/${COMPILER}/*.cpp"
 		"${COMPILER_CODE_BASE_DIR}/${COMPILER}/*.c"
-		"${COMPILER_CODE_BASE_DIR}/${COMPILER}/*.asm"
 	)
 
 	# Load flags associated with compiler Profile
