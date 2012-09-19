@@ -1,24 +1,36 @@
-// main.c -- Defines the C-code kernel entry point, calls initialisation routines.
-// Made for JamesM's tutorials
+#include	<monitor.h>
 
-#include	"monitor.h"
-/*
 struct t{
-	t(){
-		monitor_write("CTOR t\n");
+	const char *id;
+
+	t( const char *id ) : id(id) {
+		monitor_write("CTOR t ");
+		monitor_write(id);
+		monitor_write("\n");
+	}
+	void print(){
+		monitor_write("print method t ");
+		monitor_write(id);
+		monitor_write("\n");
 	}
 
-	void print(){
-		monitor_write("print method t\n");
+	~t(){
+		monitor_write("DTOR t ");
+		monitor_write(id);
+		monitor_write("\n");
 	}
 };
 
-t x;
-*/
+t x1("1");
+t x2("2");
+t x3("3");
+
 int main(struct multiboot *mboot_ptr){
 //	monitor_clear();
-	monitor_write("Psycho Mantys");
-//	x.print();
+	t x4("4");
+	monitor_write("Psycho Mantys\n");
+	x1.print();
+	x4.print();
 	return 0x00000042;
 }
 

@@ -16,6 +16,12 @@ FUNCTION(LOAD_ISA_PROFILE ISA PLATFORM)
 	INCLUDE("${KERNEL_BASE_DIR}/${ISA}/flags.cmake")
 	INCLUDE("${KERNEL_BASE_DIR}/${ISA}/${PLATFORM}/flags.cmake")
 
+	# Load flags associated with ISA and Profile
+	INCLUDE_DIRECTORIES(
+		"${KERNEL_BASE_DIR}/${ISA}/"
+		"${KERNEL_BASE_DIR}/${ISA}/${PLATFORM}/"
+	)
+
 	# Now export our output variables
 	if( EXISTS "${KERNEL_BASE_DIR}/${ISA}/${PLATFORM}/link.ld" )
 		set(PLATFORM_LINK "${KERNEL_BASE_DIR}/${ISA}/${PLATFORM}/link.ld")
@@ -50,6 +56,10 @@ FUNCTION(LOAD_COMPILER_PROFILE COMPILER)
 
 	# Load flags associated with compiler Profile
 	INCLUDE("${COMPILER_CODE_BASE_DIR}/${COMPILER}/flags.cmake")
+
+	INCLUDE_DIRECTORIES(
+		"${COMPILER_CODE_BASE_DIR}/${COMPILER}/"
+	)
 
 	set(COMPILER_SOURCES ${COMPILER_SOURCES} PARENT_SCOPE)
 

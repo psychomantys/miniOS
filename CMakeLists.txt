@@ -22,9 +22,9 @@ INCLUDE_DIRECTORIES(
 )
 add_subdirectory(src/kernel/)
 
-LOAD_ISA_PROFILE("i386" "pc")
-
 LOAD_COMPILER_PROFILE("gcc")
+
+LOAD_ISA_PROFILE("i386" "pc")
 
 set(CMAKE_C_FLAGS
 	"${ISA_C_FLAGS} ${PLATFORM_C_FLAGS} ${COMPILER_C_FLAGS}"
