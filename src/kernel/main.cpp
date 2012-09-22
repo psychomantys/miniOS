@@ -1,4 +1,5 @@
 #include	<monitor.h>
+#include	<string.h>
 
 struct t{
 	const char *id;
@@ -9,8 +10,8 @@ struct t{
 		monitor_write("\n");
 	}
 	void print(){
-		monitor_write("print method t ");
-		monitor_write(id);
+		char n[40]="print method t->print() (id)==> ";
+		monitor_write(strcat(n,id));
 		monitor_write("\n");
 	}
 

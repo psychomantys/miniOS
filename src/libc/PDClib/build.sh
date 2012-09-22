@@ -7,3 +7,5 @@ export PDCLIB_PLATFORM=example
 
 jam
 
+ln -s pdclib/pdclib.a libc.a
+
