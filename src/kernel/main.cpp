@@ -1,5 +1,6 @@
 #include	<monitor.h>
 #include	<string.h>
+#include	<stdlib.h>
 
 struct t{
 	const char *id;

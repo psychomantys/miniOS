@@ -15,24 +15,15 @@
  *
  * =====================================================================================
  */
-
 #ifndef	_ISA_SPECIFIC_CODE__INC
 #define	_ISA_SPECIFIC_CODE__INC
 
+#include	<stdint.h>
+
 // Some nice typedefs, to standardise sizes across platforms.
 // These typedefs are written for 32-bit X86.
-typedef	unsigned	char	u8int;
-typedef	unsigned	short	u16int;
-typedef	unsigned	int	u32int;
-
-typedef	char	s8int;
-typedef	short	s16int;
-typedef	int	s32int;
-
-//#include	<cstdint>
-
-typedef	u32int	dword_t;
-typedef	u16int	word_t;
+typedef	uint32_t	dword_t;
+typedef	uint64_t	word_t;
 
 #endif	/* ----- #ifndef _ISA_SPECIFIC_CODE__INC  ----- */
 
