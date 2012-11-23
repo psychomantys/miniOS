@@ -16,8 +16,8 @@
  * =====================================================================================
  */
 
-#include "monitor.h"
-#include "common.h"
+#include	<monitor.hpp>
+#include	<common.hpp>
 
 #include	<stdint.h>
 

@@ -1,4 +1,4 @@
-#include	<monitor.h>
+#include	<monitor.hpp>
 #include	<string.h>
 #include	<stdlib.h>
 
@@ -28,7 +28,7 @@ t x2("2");
 t x3("3");
 
 int main(struct multiboot *mboot_ptr){
-//	monitor_clear();
+	monitor_clear();
 	t x4("4");
 	monitor_write("Psycho Mantys\n");
 	x1.print();

@@ -9,8 +9,8 @@ set(miniOS_VERSION_MINOR_FIX 1)
 # configure a header file to pass some of the CMake settings
 # to the source code
 configure_file(
-	"${PROJECT_SOURCE_DIR}/src/config.h.in"
-	"${PROJECT_BINARY_DIR}/src/config.h"
+	"${PROJECT_SOURCE_DIR}/src/config.hpp.in"
+	"${PROJECT_BINARY_DIR}/src/config.hpp"
 )
 
 ENABLE_LANGUAGE(ASM_NASM)
@@ -53,7 +53,7 @@ set_property(TARGET libc_static PROPERTY IMPORTED_LOCATION "${LIBC_STATIC}")
 FILE(GLOB GENERIC_KERNEL_SOURCES 
 	"src/kernel/*.asm"
 	"src/kernel/*.cpp"
-	"src/kernel/*.c"
+#	"src/kernel/*.c"
 )
 
 ADD_EXECUTABLE(miniOS
@@ -70,7 +70,7 @@ if(UNIX)
 		COMMENT	"distribution clean"
 		DEPENDS	clean
 		COMMAND	sh
-		ARGS		-c '(for x in cmake.depends cmake_install.cmake cmake.check_depends CMakeCache.txt cmake.check_cache Makefile gmon.out '*~' CMakeTmp .backups CMakeFiles config.h miniOS \; do find . -iname \"$$x\" \; done ) | xargs -n1 rm -rf'
+		ARGS		-c '(for x in cmake.depends cmake_install.cmake cmake.check_depends CMakeCache.txt cmake.check_cache Makefile gmon.out '*~' CMakeTmp .backups CMakeFiles config.hpp miniOS \; do find . -iname \"$$x\" \; done ) | xargs -n1 rm -rf'
 		TARGET  distclean
 	)
 ENDIF(UNIX)
