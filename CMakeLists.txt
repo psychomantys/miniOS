@@ -6,6 +6,11 @@ set(miniOS_VERSION_MAJOR 0)
 set(miniOS_VERSION_MINOR 0)
 set(miniOS_VERSION_MINOR_FIX 1)
 
+set(PROFILE_COMPILER "gcc" CACHE STRING "Select compiler profile for use in kernel. Options in directory: ${PROJECT_BINARY_DIR}/src/kernel/compiler")
+set(PROFILE_LIBC "PDClib" CACHE STRING "Select libc profile for use in kernel to provide basic C functions. Options in directory: ${PROJECT_BINARY_DIR}/src/libc/")
+set(PROFILE_ISA "i386" CACHE STRING "Select ISA profile for use in kernel. Options in directory: ${PROJECT_BINARY_DIR}/src/kernel/arch/")
+set(PROFILE_PLATAFORM "pc" CACHE STRING "Select plataform profile for use in kernel. Options in directory: ${PROJECT_BINARY_DIR}/src/kernel/arch/$ISA_DIR")
+
 # configure a header file to pass some of the CMake settings
 # to the source code
 configure_file(
@@ -24,11 +29,11 @@ add_subdirectory(src/kernel/)
 
 add_subdirectory(src/libc/)
 
-LOAD_COMPILER_PROFILE("gcc")
+LOAD_COMPILER_PROFILE("${PROFILE_COMPILER}")
 
-LOAD_ISA_PROFILE("i386" "pc")
+LOAD_ISA_PROFILE("${PROFILE_ISA}" "${PROFILE_PLATAFORM}")
 
-LOAD_LIBC_PROFILE("PDClib")
+LOAD_LIBC_PROFILE("${PROFILE_LIBC}")
 
 set(CMAKE_C_FLAGS
 	"${ISA_C_FLAGS} ${PLATFORM_C_FLAGS} ${COMPILER_C_FLAGS}"
