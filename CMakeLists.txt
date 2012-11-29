@@ -5,6 +5,7 @@ PROJECT(miniOS)
 set(miniOS_VERSION_MAJOR 0)
 set(miniOS_VERSION_MINOR 0)
 set(miniOS_VERSION_MINOR_FIX 1)
+set(miniOS_VERSION_CUSTOM 0 CACHE STRING "Custom version string for kernel")
 
 set(PROFILE_COMPILER "gcc" CACHE STRING "Select compiler profile for use in kernel. Options in directory: ${PROJECT_BINARY_DIR}/src/kernel/compiler")
 set(PROFILE_LIBC "PDClib" CACHE STRING "Select libc profile for use in kernel to provide basic C functions. Options in directory: ${PROJECT_BINARY_DIR}/src/libc/")
