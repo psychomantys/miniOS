@@ -9,6 +9,7 @@ set(miniOS_VERSION_CUSTOM 0 CACHE STRING "Custom version string for kernel")
 
 set(PROFILE_COMPILER "gcc" CACHE STRING "Select compiler profile for use in kernel. Options in directory: ${PROJECT_BINARY_DIR}/src/kernel/compiler")
 set(PROFILE_LIBC "PDClib" CACHE STRING "Select libc profile for use in kernel to provide basic C functions. Options in directory: ${PROJECT_BINARY_DIR}/src/libc/")
+set(PROFILE_LIBCPP "NewLib" CACHE STRING "Select libcxx profile for use in kernel to provide basic CPP functions. Options in directory: ${PROJECT_BINARY_DIR}/src/libcxx/")
 set(PROFILE_ISA "i386" CACHE STRING "Select ISA profile for use in kernel. Options in directory: ${PROJECT_BINARY_DIR}/src/kernel/arch/")
 set(PROFILE_PLATAFORM "pc" CACHE STRING "Select plataform profile for use in kernel. Options in directory: ${PROJECT_BINARY_DIR}/src/kernel/arch/$ISA_DIR")
 
@@ -24,17 +25,20 @@ ENABLE_LANGUAGE(ASM_NASM)
 INCLUDE_DIRECTORIES(
 	${PROJECT_BINARY_DIR}
 	${PROJECT_BINARY_DIR}/src
-	${PROJECT_BINARY_DIR}/src/kernel
+#	${PROJECT_BINARY_DIR}/src/kernel
 )
-add_subdirectory(src/kernel/)
 
+add_subdirectory(src/kernel/)
 add_subdirectory(src/libc/)
+add_subdirectory(src/libcxx/)
 
 LOAD_COMPILER_PROFILE("${PROFILE_COMPILER}")
 
 LOAD_ISA_PROFILE("${PROFILE_ISA}" "${PROFILE_PLATAFORM}")
 
 LOAD_LIBC_PROFILE("${PROFILE_LIBC}")
+
+#LOAD_LIBCXX_PROFILE("${PROFILE_LIBCPP}")
 
 set(CMAKE_C_FLAGS
 	"${ISA_C_FLAGS} ${PLATFORM_C_FLAGS} ${COMPILER_C_FLAGS}"
@@ -53,8 +57,15 @@ elseif( NOT DEFINED PLATFORM_LINK )
 	)
 endif( DEFINED PLATFORM_LINK )
 
-add_library(libc_static STATIC IMPORTED)
-set_property(TARGET libc_static PROPERTY IMPORTED_LOCATION "${LIBC_STATIC}")
+if( DEFINED LIBC_STATIC )
+	add_library(libc_static STATIC IMPORTED)
+	set_property(TARGET libc_static PROPERTY IMPORTED_LOCATION "${LIBC_STATIC}")
+endif( DEFINED LIBC_STATIC )
+
+if( DEFINED LIBCPP_STATIC )
+	add_library(libcxx_static STATIC IMPORTED)
+	set_property(TARGET libcxx_static PROPERTY IMPORTED_LOCATION "${LIBCXX_STATIC}")
+endif( DEFINED LIBCPP_STATIC )
 
 FILE(GLOB GENERIC_KERNEL_SOURCES 
 	"src/kernel/*.asm"
