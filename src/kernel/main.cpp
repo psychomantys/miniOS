@@ -60,7 +60,7 @@ int main(){
 	kb.install( irq );
 
 	enable_interrupts();
-	int div_error=0/0;
+//	int div_error=0/0;
 	t x4("4");
 	t x5("5");
 	kprintf("Psycho Mantys\n");
