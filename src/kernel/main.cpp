@@ -44,6 +44,10 @@ IRQ irq;
 Timer pit;
 Keyboard kb;
 
+void *operator new[](unsigned int s){
+	return malloc(s);
+}
+
 //int main(struct multiboot *mboot_ptr){
 int main(){
 	//stl::string s("OPAAA GANGNAM STYLE!!")
@@ -60,9 +64,16 @@ int main(){
 	t x4("4");
 	t x5("5");
 	kprintf("Psycho Mantys\n");
-	pit.wait(200);
+	pit.wait(20);
 	kprintf("22222\n");
-	//int *x=(int*)malloc(10);
+//	char *x=(char*)malloc(10);
+	char *x=new char[10];
+	x[0]='4';
+	x[1]='2';
+	x[2]='!';
+	x[3]='\n';
+	x[4]='\0';
+	kprintf(x);
 	x1.print();
 	x4.print();
 
