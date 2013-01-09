@@ -44,9 +44,9 @@ IRQ irq;
 Timer pit;
 Keyboard kb;
 
-void *operator new[](unsigned int s){
+/*void *operator new[](unsigned int s){
 	return malloc(s);
-}
+}*/
 
 //int main(struct multiboot *mboot_ptr){
 int main(){
@@ -60,7 +60,7 @@ int main(){
 	kb.install( irq );
 
 	enable_interrupts();
-//	int x=0/0;
+	int div_error=0/0;
 	t x4("4");
 	t x5("5");
 	kprintf("Psycho Mantys\n");

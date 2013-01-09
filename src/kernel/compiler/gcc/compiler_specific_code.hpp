@@ -17,6 +17,7 @@
 #define	_COMPILER_SPECIFIC_CODE_HPP__INC
 
 #include	<icxxabi.hpp>
+#include	<new.hpp>
 #include	<local_static_vars.hpp>
 #include	<quad/quad.h>
 
