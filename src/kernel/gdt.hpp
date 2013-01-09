@@ -43,8 +43,8 @@ class GDT{
 	private:
 //		union packet_GDT_entry gdt[3];
 //		union packet_GDT_ptr gp;
-		struct GDT_entry gdt[3];
-		struct GDT_ptr gp;
+		static struct GDT_entry gdt[3];
+		static struct GDT_ptr gp;
 };
 
 #endif   /* ----- #ifndef gdt_INC  ----- */

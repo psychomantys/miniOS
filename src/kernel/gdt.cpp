@@ -2,10 +2,14 @@
 #include	<kernel/gdt.hpp>
 #include	<isa_specific_code.hpp>
 
+struct GDT_entry GDT::gdt[3];
+struct GDT_ptr GDT::gp;
+
 GDT::GDT(){}
 
 /* Setup a descriptor in the Global Descriptor Table */
 void GDT::set_gate(int num, unsigned long base, unsigned long limit, unsigned char access, unsigned char gran){
+#if 0
 	/* Setup the descriptor base address */
 	this->gdt[num].base_low = (base & 0xFFFF);
 	this->gdt[num].base_middle = (base >> 16) & 0xFF;
@@ -18,6 +22,20 @@ void GDT::set_gate(int num, unsigned long base, unsigned long limit, unsigned ch
 	/* Finally, set up the granularity and access flags */
 	gdt[num].granularity |= (gran & 0xF0);
 	gdt[num].access = access;
+#else
+	/* Setup the descriptor base address */
+	this->gdt[num].base_low = (base & 0xFFFF);
+	this->gdt[num].base_middle = (base >> 16) & 0xFF;
+	this->gdt[num].base_high = (base >> 24) & 0xFF;
+
+	/* Setup the descriptor limits */
+	this->gdt[num].limit_low = (limit & 0xFFFF);
+	this->gdt[num].granularity = ((limit >> 16) & 0x0F);
+
+	/* Finally, set up the granularity and access flags */
+	this->gdt[num].granularity |= (gran & 0xF0);
+	this->gdt[num].access = access;
+#endif
 }
 
 /* Should be called by main. This will setup the special GDT

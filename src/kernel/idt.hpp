@@ -2,7 +2,6 @@
 #define  idt_INC
 
 #include	<stdint.h>
-#include	<kernel/idt.hpp>
 #include	<isa_specific_code.hpp>
 
 /* Defines an IDT entry */
@@ -51,8 +50,8 @@ class IDT{
 		void install();
 
 	private:
-		struct IDT_entry idt[256];
-		struct IDT_ptr idtp;
+		static volatile struct IDT_entry idt[256];
+		static volatile struct IDT_ptr idtp;
 //		union packet_IDT_entry idt[256];
 //		union packet_IDT_ptr idtp;
 };

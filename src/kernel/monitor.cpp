@@ -140,6 +140,10 @@ void monitor_write(const char *c){
 
 #endif
 
+void kprintf(const char *s){
+	static VGA tela;
+	tela.write(s);
+}
 
 VGA::VGA() :
 	video_memory( (uint16_t *)(0xB8000) ),
@@ -147,7 +151,8 @@ VGA::VGA() :
 	cursor_y(0),
 	attribute(0x0F)
 {
-
+	clear();
+	settextcolor(VGA::light_green, VGA::black);
 }
 
 /* Sets the forecolor and backcolor that we will use */

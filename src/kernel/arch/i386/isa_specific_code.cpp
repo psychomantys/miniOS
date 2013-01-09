@@ -1,11 +1,15 @@
 
 #include	<isa_specific_code.hpp>
 #include	<kernel/gdt.hpp>
+#include	<config.hpp>
 
 #include	<stdint.h>
 
+//#define USE_INLINE_ASM
+#ifdef USE_INLINE_ASM
+
 extern "C" {
-	void GDT_flush( const GDT_ptr &new_gdt ){
+	void GDT_flush( const volatile GDT_ptr &new_gdt ){
 		asm volatile ("lgdt (%0)" : : "dN" (&new_gdt) );
 		asm volatile ("mov $0x10, %ax\n\t"
 			"mov %ax, %ds\n\t"
@@ -18,18 +22,22 @@ extern "C" {
 		);
 	}
 
-	void IDT_load( const IDT_ptr &new_idt ){
-		asm volatile ("lidt (%0)" : : "dN" (&new_idt) );
+	void IDT_load( const volatile IDT_ptr &new_idt ){
+		asm volatile("lidt (%0)" : : "dN" (&new_idt) );
 	}
 
 	void halt_machine(){
-		asm(".hang:\n\t"
+		asm volatile(".hang:\n\t"
 		"hlt\n\t"
 		"jmp  .hang");
 	}
 
 	void disable_interrupts(){
-		asm("cli");
+		asm volatile("cli");
+	}
+
+	void enable_interrupts(){
+		asm volatile("sti");
 	}
 
 	// Write a byte out to the specified port.
@@ -49,4 +57,6 @@ extern "C" {
 		return ret;
 	}
 }
+
+#endif
 

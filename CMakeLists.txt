@@ -21,6 +21,7 @@ configure_file(
 )
 
 ENABLE_LANGUAGE(ASM_NASM)
+ENABLE_LANGUAGE(ASM-ATT)
 
 INCLUDE_DIRECTORIES(
 	${PROJECT_BINARY_DIR}
@@ -69,6 +70,7 @@ endif( DEFINED LIBCPP_STATIC )
 
 FILE(GLOB GENERIC_KERNEL_SOURCES 
 	"src/kernel/*.asm"
+	"src/kernel/*.s"
 	"src/kernel/*.cpp"
 #	"src/kernel/*.c"
 )

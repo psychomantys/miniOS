@@ -1,19 +1,39 @@
-
+/*OUTPUT_FORMAT("binary")*/
 ENTRY (start)
+/*
+begin_phys_addres = 0x00100000;
 
+_MH_MAGIC = 0x1BADB002;
+_MH_FLAGS = 0x00000003;
+kernel_pma = 1M;
+*/
 SECTIONS
 {
-	. = 0x00100000;
-
+	. = 0x00100000 ;
 	.text :
 	{
 		code = .; _code = .; __code = .;
-		*(.text)
-/*		*(.gnu.linkonce.t*)*/
-		. = ALIGN(4096);
-	}
+		/* Multiboot Header Gostaria que isso desse certo
+		LONG(_MH_MAGIC)
+		LONG(_MH_FLAGS)
+		LONG(-(_MH_MAGIC + _MH_FLAGS))
 
-	.rodata :
+		LONG(0)
+		LONG(code)
+		LONG(bss)
+		LONG(end)
+		LONG(rodata)
+		LONG(start)
+*/
+		*(.header*) ;
+		*(.text*) ;
+
+		*(.gnu.linkonce.t*) ;
+		. = ALIGN(4096);
+	} = 0x00100000
+
+	.rodata : ALIGN(4096)
+/*	AT(begin_phys_addres+(rodata-code)) */
 	{
 		rodata = .; _rodata = .; __rodata = .;
 
@@ -24,27 +44,30 @@ SECTIONS
 		start_dtors = .;
 		*(SORT(.dtors*))
 		end_dtors = .;
-		data = .; _data = .; __data = .;
 
 		*(.rodata*)
-/*		*(.gnu.linkonce.r*)*/
+		*(.gnu.linkonce.r*)
 		. = ALIGN(4096);
 	}
 
-	.data :
+	.data : ALIGN(4096)
+	/* : AT(begin_phys_add+(data-code)) */
 	{
+		data = .; _data = .; __data = .;
+
 		*(.data)
-/*		*(.gnu.linkonce.d*)*/
+		*(.gnu.linkonce.d*)
 		. = ALIGN(4096);
 	}
 
-	.bss :
+	.bss : ALIGN(4096)
+	/* : AT( begin_phys_add+(bss-code) )*/
 	{
 		bss = .; _bss = .; __bss = .;
 		sbss = .;
-/*		*(COMMON)*/
+		*(COMMON)
 		*(.bss)
-/*		*(.gnu.linkonce.b*)*/
+		*(.gnu.linkonce.b*)
 		ebss = .;
 		. = ALIGN(4096);
 	}

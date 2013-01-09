@@ -73,5 +73,12 @@ class VGA {
 		void scroll();
 };
 
+//extern "C" void opa();
+
+extern "C" {
+	void kprintf(const char *);
+//	void kputch(const char);
+}
+
 #endif // MONITOR_HPP
 

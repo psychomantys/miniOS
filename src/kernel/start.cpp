@@ -30,7 +30,7 @@ const struct multiboot_header kernel_header = {
 };
 
 #else
-
+/*
 asm(".globl code\n\t"
 ".globl bss\n\t"
 ".globl end\n\t"
@@ -52,7 +52,7 @@ asm(".globl code\n\t"
 	".long	bss\n\t"
 	".long	end\n\t"
 	".long	rodata\n\t"
-	".long	start");
+	".long	start"); */
 #endif
 
 #include	<compiler_specific_code.hpp>

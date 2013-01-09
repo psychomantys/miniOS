@@ -29,12 +29,13 @@ typedef	uint64_t	word_t;
 extern "C" {
 	void halt_machine();
 	void disable_interrupts();
+	void enable_interrupts();
 
 	void outb(const uint16_t &port, const uint8_t &value);
 	uint8_t inb(const uint16_t &port);
 	uint16_t inw(const uint16_t &port);
-	void GDT_flush( const struct GDT_ptr &new_gdt );
-	void IDT_load( const struct IDT_ptr &new_idt );
+	void GDT_flush( const volatile struct GDT_ptr &new_gdt );
+	void IDT_load( const volatile struct IDT_ptr &new_idt );
 }
 
 #endif	/* ----- #ifndef _ISA_SPECIFIC_CODE__INC  ----- */
