@@ -44,7 +44,7 @@ void Timer::handler(struct regs *r){
 	/* Every 18 clocks (approximately 1 second), we will
 	 *  display a message on the screen */
 	if( timer_ticks % 18 == 0){
-		kprintf("One second has passed\n");
+//		kprintf("One second has passed\n");
 	}
 }
 
@@ -58,7 +58,7 @@ void Timer::install( IRQ &irq ){
 /* This will continuously loop until the given time has
 *  been reached */
 void Timer::wait(const unsigned long &ticks){
-	unsigned long eticks;
+	long eticks;
 
 	eticks = timer_ticks + ticks;
 	while(timer_ticks < eticks);

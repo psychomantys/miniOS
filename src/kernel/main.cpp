@@ -4,16 +4,15 @@
 #include	<kernel/irq.hpp>
 #include	<kernel/timer.hpp>
 #include	<kernel/keyboard.hpp>
+#include	<kernel/kpp/queue.hpp>
 #include	<string.h>
 #include	<stdlib.h>
-
-//VGA tela;
 
 class t{
 	public:
 		const char *id;
 
-		t( const char *id ) : id(id) {
+		t( const char *id="10000" ) : id(id) {
 			kprintf("CTOR t ");
 			kprintf(id);
 			kprintf("\n");
@@ -44,10 +43,6 @@ IRQ irq;
 Timer pit;
 Keyboard kb;
 
-/*void *operator new[](unsigned int s){
-	return malloc(s);
-}*/
-
 //int main(struct multiboot *mboot_ptr){
 int main(){
 	//stl::string s("OPAAA GANGNAM STYLE!!")
@@ -68,12 +63,30 @@ int main(){
 	kprintf("22222\n");
 //	char *x=(char*)malloc(10);
 	char *x=new char[10];
-	x[0]='4';
-	x[1]='2';
-	x[2]='!';
-	x[3]='\n';
-	x[4]='\0';
+//	DQueue<char> s;
+	SQueue<char> s(10);
+
+	s.push('4');
+	s.push('2');
+	s.push('!');
+	s.push('\n');
+	s.push('\0');
+
+	for( int i=0 ; not s.is_empty() ; ++i ){
+		x[i]=s.pop() ;
+	}
+
 	kprintf(x);
+	pit.wait(20);
+
+	x[0]=kb.getch(pit);
+	kprintf(x);
+
+//	t *a=new t[10];
+
+	delete []x;
+//	delete []a;
+
 	x1.print();
 	x4.print();
 

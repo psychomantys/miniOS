@@ -2,6 +2,8 @@
 #define _KEYBOARD_HPP_
 
 #include	<kernel/irq.hpp>
+#include	<kernel/timer.hpp>
+#include	<kernel/kpp/queue.hpp>
 
 /* KBDUS means US Keyboard Layout. This is a scancode table
  *  used to layout a standard US keyboard. I have left some
@@ -49,11 +51,11 @@ static unsigned char kbdus[128] = {
 
 class Keyboard{
 	private:
-		unsigned int buffer_size;
-		static char keyboard_buffer[256];
-	public:	
+		static SQueue<char> keyboard_buffer;
+	public:
 		void install( IRQ &irq );
 		static void handler(struct regs *r);
+		char getch( Timer &t );
 };
 
 #endif	/* _KEYBOARD_HPP_ */

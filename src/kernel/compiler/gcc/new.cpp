@@ -21,3 +21,15 @@ void *operator new[](unsigned int s){
 	return malloc(s);
 }
 
+void *operator new(unsigned int s){
+	return malloc(s);
+}
+
+void operator delete[](void* f){
+	free(f);
+}
+
+void operator delete(void* f){
+	free(f);
+}
+

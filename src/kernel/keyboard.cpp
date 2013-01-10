@@ -21,6 +21,16 @@
 #include	<kernel/monitor.hpp>
 #include	<kernel/keyboard.hpp>
 #include	<kernel/irq.hpp>
+#include	<kernel/timer.hpp>
+
+SQueue<char> Keyboard::keyboard_buffer(4);
+
+char Keyboard::getch( Timer &t ){
+	while( keyboard_buffer.is_empty() ){
+		t.wait(3);
+	}
+	return keyboard_buffer.pop();
+}
 
 void Keyboard::handler(struct regs *r){
 	unsigned char scancode;
@@ -49,7 +59,12 @@ void Keyboard::handler(struct regs *r){
 		char c[2];
 		c[0]=(char)(kbdus[scancode]);
 		c[1]=(char)('\0');
+
 		kprintf( c );
+
+		if( kbdus[scancode]!=0 && ! keyboard_buffer.is_full() ){
+			keyboard_buffer.push( kbdus[scancode] );
+		}
 	}
 }
 

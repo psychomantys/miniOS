@@ -17,15 +17,18 @@ class Timer{
 		 *  increment the 'timer_ticks' variable every time the
 		 *  timer fires. By default, the timer fires 18.222 times
 		 *  per second. Why 18.222Hz? Some engineer at IBM must've
-		 *  been smoking something funky */
+		 *  been smoking something funky
+		 */
 		static void handler(struct regs *r);
 
 		/* Sets up the system clock by installing the timer handler
-		 *  into IRQ0 */
+		 *  into IRQ0
+		 */
 		void install( IRQ &irq );
 
 		/* This will continuously loop until the given time has
-		*  been reached */
+		 * been reached
+		 */
 		void wait(const unsigned long &ticks);
 };
 
