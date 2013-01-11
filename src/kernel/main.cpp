@@ -82,10 +82,10 @@ int main(){
 	x[0]=kb.getch(pit);
 	kprintf(x);
 
-//	t *a=new t[10];
+	t *a=new t[2];
 
 	delete []x;
-//	delete []a;
+	delete []a;
 
 	x1.print();
 	x4.print();

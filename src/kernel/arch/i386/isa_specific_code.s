@@ -114,9 +114,6 @@ inb:
 
 	inb %dx, %al
 
-	movb	%al, %bl
-	movb	%bl, -5(%ebp)
-	movb	-5(%ebp), %al
 	addl	$20, %esp
 	popl	%ebx
 	popl	%ebp
@@ -136,9 +133,6 @@ inw:
 
 	inw %dx, %ax
 
-	movl	%eax, %ebx
-	movw	%bx, -6(%ebp)
-	movw	-6(%ebp), %ax
 	addl	$20, %esp
 	popl	%ebx
 	popl	%ebp
