@@ -38,8 +38,9 @@ union packet_GDT_ptr{
 class GDT{
 	public:
 		GDT();
-		void set_gate(int num, unsigned long base, unsigned long limit, unsigned char access, unsigned char gran);
+		void set_gate(const int &num, const uint32_t &base, const uint32_t &limit, const uint8_t &access, const uint8_t &gran);
 		void install();
+		void flush();
 	private:
 //		union packet_GDT_entry gdt[3];
 //		union packet_GDT_ptr gp;

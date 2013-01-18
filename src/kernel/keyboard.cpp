@@ -25,9 +25,12 @@
 
 SQueue<char> Keyboard::keyboard_buffer(4);
 
-char Keyboard::getch( Timer &t ){
+Keyboard::Keyboard( Timer &timer, IRQ& irq ) : timer(timer), irq(irq)
+{ }
+
+char Keyboard::getch(){
 	while( keyboard_buffer.is_empty() ){
-		t.wait(3);
+		timer.wait(3);
 	}
 	return keyboard_buffer.pop();
 }
@@ -68,7 +71,7 @@ void Keyboard::handler(struct regs *r){
 	}
 }
 
-void Keyboard::install( IRQ &irq ){
+void Keyboard::install(){
 	/* Installs 'handler' to IRQ1 */
 	irq.install_handler(1, Keyboard::handler);
 }

@@ -39,9 +39,9 @@ t x3("3");
 
 GDT gdt;
 IDT idt;
-IRQ irq;
-Timer pit;
-Keyboard kb;
+IRQ irq( idt );
+Timer pit( irq );
+Keyboard kb( pit, irq );
 
 //int main(struct multiboot *mboot_ptr){
 int main(){
@@ -50,9 +50,9 @@ int main(){
 	gdt.install();
 	idt.install();
 
-	irq.install( idt );
-	pit.install( irq );
-	kb.install( irq );
+	irq.install();
+	pit.install();
+	kb.install();
 
 	enable_interrupts();
 //	int div_error=0/0;
@@ -79,7 +79,7 @@ int main(){
 	kprintf(x);
 	pit.wait(20);
 
-	x[0]=kb.getch(pit);
+	x[0]=kb.getch();
 	kprintf(x);
 
 	t *a=new t[2];

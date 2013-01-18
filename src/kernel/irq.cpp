@@ -21,12 +21,18 @@
 #include	<isa_specific_code.hpp>
 #include	<plataform_specific_code.hpp>
 
+
 /* This array is actually an array of function pointers. We use
  *  this to handle custom IRQ handlers for a given IRQ */
 void *IRQ::irq_routines[16] = {
 	0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0
 };
+
+IRQ::IRQ( IDT &idt ) : idt(idt)
+{
+
+}
 
 /* This installs a custom IRQ handler for the given IRQ */
 void IRQ::install_handler(const int &irq, void (*handler)(struct regs *r)){
@@ -63,7 +69,7 @@ void IRQ::remap(void){
 /* We first remap the interrupt controllers, and then we install
  *  the appropriate ISRs to the correct entries in the IDT. This
  *  is just like installing the exception handlers */
-void IRQ::install( IDT &idt ){
+void IRQ::install(){
 	this->remap();
 
 	idt.set_gate(32, (unsigned)irq0, 0x08, 0x8E);
@@ -93,7 +99,8 @@ void IRQ::install( IDT &idt ){
  *  15) gets an interrupt, you need to acknowledge the
  *  interrupt at BOTH controllers, otherwise, you only send
  *  an EOI command to the first controller. If you don't send
- *  an EOI, you won't raise any more IRQs */
+ *  an EOI, you won't raise any more IRQs
+ */
 extern "C" void irq_handler(struct regs *r){
 	/* This is a blank function pointer */
 	void (*handler)(struct regs *r);
@@ -107,7 +114,8 @@ extern "C" void irq_handler(struct regs *r){
 
 	/* If the IDT entry that was invoked was greater than 40
 	 *  (meaning IRQ8 - 15), then we need to send an EOI to
-	 *  the slave controller */
+	 *  the slave controller
+	 */
 	if (r->int_no >= 40){
 		outb(0xA0, 0x20);
 	}

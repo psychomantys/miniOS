@@ -9,7 +9,14 @@
 volatile struct IDT_entry IDT::idt[256];
 volatile struct IDT_ptr IDT::idtp;
 
-IDT::IDT(){}
+IDT::IDT(){
+	/* Sets the special IDT pointer up, just like in 'gdt.c' */
+	idtp.limit = ( sizeof(struct IDT_entry)*256 ) - 1;
+	idtp.base = (uint32_t)(&idt);
+
+	/* Clear out the entire IDT, initializing it to zeros */
+	memset((void*)(&idt), 0, sizeof(struct IDT_entry)*256 );
+}
 
 /* Declare an IDT of 256 entries. Although we will only use the
  *  first 32 entries in this tutorial, the rest exists as a bit
@@ -20,7 +27,8 @@ IDT::IDT(){}
 
 /* Use this function to set an entry in the IDT. Alot simpler
 *  than twiddling with the GDT ;) */
-void IDT::set_gate(unsigned char num, unsigned long base, unsigned short sel, unsigned char flags){
+void IDT::set_gate( const uint32_t &num, const uint32_t &base, const uint16_t &sel, const uint8_t &flags){
+//void IDT::set_gate(unsigned char num, unsigned long base, unsigned short sel, unsigned char flags){
 	/* We'll leave you to try and code this function: take the
 	 *  argument 'base' and split it up into a high and low 16-bits,
 	 *  storing them in idt[num].base_hi and base_lo. The rest of the
@@ -39,18 +47,8 @@ void IDT::set_gate(unsigned char num, unsigned long base, unsigned short sel, un
 
 /* Installs the IDT */
 void IDT::install(){
-	/* Sets the special IDT pointer up, just like in 'gdt.c' */
-//	idtp.p.limit = (sizeof(struct IDT_entry)*sizeof(idt) ) - 1;
-//	idtp.p.base = (uint32_t)(&idt);
-	idtp.limit = ( sizeof(struct IDT_entry)*256 ) - 1;
-	idtp.base = (uint32_t)(&idt);
-//	idtp.base = &idt;
-
-	/* Clear out the entire IDT, initializing it to zeros */
-	memset((void*)(&idt), 0, sizeof(struct IDT_entry)*256 );
-
 	/* Add any new ISRs to the IDT here using set_gate */
-	set_gate(0, (unsigned)isr0, 0x08, 0x8E);
+	set_gate(0, (uint32_t)isr0, 0x08, 0x8E);
 	set_gate(1, (unsigned)isr1, 0x08, 0x8E);
 	set_gate(2, (unsigned)isr2, 0x08, 0x8E);
 	set_gate(3, (unsigned)isr3, 0x08, 0x8E);
@@ -82,10 +80,12 @@ void IDT::install(){
 	set_gate(29, (unsigned)isr29, 0x08, 0x8E);
 	set_gate(30, (unsigned)isr30, 0x08, 0x8E);
 	set_gate(31, (unsigned)isr31, 0x08, 0x8E);
-	/*
-*/
 
 	/* Points the processor's internal register to the new IDT */
+	this->load();
+}
+
+void IDT::load(){
 	IDT_load(idtp);
 }
 

@@ -45,9 +45,11 @@ class IDT{
 		IDT();
 		/* Use this function to set an entry in the IDT. Alot simpler
 		 *  than twiddling with the GDT ;) */
-		void set_gate(unsigned char num, unsigned long base, unsigned short sel, unsigned char flags);
+		void set_gate( const uint32_t &num, const uint32_t &base, const uint16_t &sel, const uint8_t &flags);
 		/* Installs the IDT */
 		void install();
+		/* Load the IDT */
+		void load();
 
 	private:
 		static volatile struct IDT_entry idt[256];

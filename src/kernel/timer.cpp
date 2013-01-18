@@ -23,7 +23,8 @@
 
 int Timer::timer_ticks=0;
 
-Timer::Timer() { }
+Timer::Timer( IRQ &irq ) : irq(irq)
+{}
 
 void Timer::phase(int hz){
 	int divisor = 1193180 / hz;       /* Calculate our divisor */
@@ -50,7 +51,7 @@ void Timer::handler(struct regs *r){
 
 /* Sets up the system clock by installing the timer handler
  *  into IRQ0 */
-void Timer::install( IRQ &irq ){
+void Timer::install(){
 	/* Installs 'timer_handler' to IRQ0 */
 	irq.install_handler(0, Timer::handler);
 }

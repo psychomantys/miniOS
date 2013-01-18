@@ -52,10 +52,13 @@ static unsigned char kbdus[128] = {
 class Keyboard{
 	private:
 		static SQueue<char> keyboard_buffer;
+		Timer &timer;
+		IRQ &irq;
 	public:
-		void install( IRQ &irq );
+		Keyboard( Timer &timer, IRQ &irq );
+		void install();
 		static void handler(struct regs *r);
-		char getch( Timer &t );
+		char getch();
 };
 
 #endif	/* _KEYBOARD_HPP_ */

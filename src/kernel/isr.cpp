@@ -27,11 +27,10 @@ extern "C" void fault_handler(struct regs *r){
 		kprintf( exception_messages[r->int_no] );
 		kprintf(": ISR LANCADO!!!!!! Desligando.\n");
 		halt_machine();
-		for (;;);
 	}
 	kprintf("ISR LANCADO!!!!!! Desligando.\n");
 //	kprintf( exception_messages[r->int_no] );
 	kprintf("\n");
-	halt_machine();
+//	halt_machine();
 }
 

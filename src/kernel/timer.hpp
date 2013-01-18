@@ -9,9 +9,12 @@ class Timer{
 		 *  has been running for */
 		static int timer_ticks;
 
+		IRQ &irq;
+
 	public:
+
 		void phase(int hz);
-		Timer();
+		Timer( IRQ &irq );
 
 		/* Handles the timer. In this case, it's very simple: We
 		 *  increment the 'timer_ticks' variable every time the
@@ -24,7 +27,7 @@ class Timer{
 		/* Sets up the system clock by installing the timer handler
 		 *  into IRQ0
 		 */
-		void install( IRQ &irq );
+		void install();
 
 		/* This will continuously loop until the given time has
 		 * been reached
