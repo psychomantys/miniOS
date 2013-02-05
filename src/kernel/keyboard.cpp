@@ -59,11 +59,11 @@ void Keyboard::handler(struct regs *r){
 		 *  to the above layout to correspond to 'shift' being
 		 *  held. If shift is held using the larger lookup table,
 		 *  you would add 128 to the scancode when you look for it */
-		char c[2];
-		c[0]=(char)(kbdus[scancode]);
-		c[1]=(char)('\0');
+//		char c[2];
+//		c[0]=(char)(kbdus[scancode]);
+//		c[1]=(char)('\0');
 
-		kprintf( c );
+		kprintf("%c",kbdus[scancode]);
 
 		if( kbdus[scancode]!=0 && ! keyboard_buffer.is_full() ){
 			keyboard_buffer.push( kbdus[scancode] );

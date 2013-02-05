@@ -16,20 +16,31 @@
  * =====================================================================================
  */
 #include	<stdlib.h>
+#include	<kernel/monitor.hpp>
+#include	<kernel/kmalloc.hpp>
 
 void *operator new[](unsigned int s){
-	return malloc(s);
+	void *p=(void*)(kmalloc(s));
+	if( ! p ){
+		kprintf("Bad alloc %d\n",s);
+	}	
+	kprintf("p=%p\n",p);
+	return p;
 }
 
 void *operator new(unsigned int s){
-	return malloc(s);
+	void *p=(void*)(kmalloc(s));
+	if( ! p ){
+		kprintf("Bad alloc %d\n",s);
+	}	
+	return p;
 }
 
 void operator delete[](void* f){
-	free(f);
+//	free(f);
 }
 
 void operator delete(void* f){
-	free(f);
+//	free(f);
 }
 

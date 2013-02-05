@@ -24,13 +24,10 @@
 
 extern "C" void fault_handler(struct regs *r){
 	if (r->int_no < 32){
-		kprintf( exception_messages[r->int_no] );
-		kprintf(": ISR LANCADO!!!!!! Desligando.\n");
+		kprintf("%s: ISR LANCADO!!!!!! Desligando.\n", exception_messages[r->int_no]);
 		halt_machine();
 	}
-	kprintf("ISR LANCADO!!!!!! Desligando.\n");
-//	kprintf( exception_messages[r->int_no] );
-	kprintf("\n");
-//	halt_machine();
+	kprintf("%s: ISR LANCADO!!!!!! Desligando.\n", exception_messages[r->int_no]);
+	halt_machine();
 }
 

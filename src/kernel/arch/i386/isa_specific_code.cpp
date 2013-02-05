@@ -56,7 +56,16 @@ extern "C" {
 		asm volatile ("inw %1, %0" : "=a" (ret) : "dN" (port));
 		return ret;
 	}
-}
+
 
 #endif
+extern "C" {
+	void get_register_eax(volatile uint32_t &ret){
+		asm volatile ("mov %%eax, %0" : "=r"(ret) );
+	}
+
+	void get_register_ebx( volatile uint32_t &ret){
+		asm volatile ("mov %%ebx, %0" : "=r"(ret) );
+	}
+}
 

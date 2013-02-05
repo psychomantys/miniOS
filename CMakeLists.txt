@@ -72,6 +72,7 @@ FILE(GLOB GENERIC_KERNEL_SOURCES
 	"src/kernel/*.asm"
 	"src/kernel/*.s"
 	"src/kernel/*.cpp"
+	"src/kernel/kpp/*.cpp"
 #	"src/kernel/*.c"
 )
 

@@ -225,4 +225,7 @@ typedef struct multiboot_mod_list multiboot_module_t;
 
 #endif /* ! ASM_FILE */
 
+extern struct multiboot_header *multiboot_addr;
+extern uint32_t multiboot_magic;
+
 #endif /* ! MULTIBOOT_HEADER */

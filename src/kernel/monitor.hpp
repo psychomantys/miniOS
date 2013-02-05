@@ -21,6 +21,8 @@
 
 #include	<stdint.h>
 
+#define KPRINTF_BUFFER_MAX_SIZE	200
+
 /*
 // Write a single character out to the screen.
 void monitor_put(const char c);
@@ -76,7 +78,7 @@ class VGA {
 //extern "C" void opa();
 
 extern "C" {
-	void kprintf(const char *);
+	int kprintf(const char *format, ... );
 //	void kputch(const char);
 }
 

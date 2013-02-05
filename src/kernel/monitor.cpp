@@ -20,6 +20,8 @@
 #include	<isa_specific_code.hpp>
 
 #include	<stdint.h>
+#include	<stdarg.h>
+#include	<kernel/kpp/snprintf.hpp>
 
 #ifndef USE_MONITOR_IN_C
 
@@ -140,9 +142,23 @@ void monitor_write(const char *c){
 
 #endif
 
-void kprintf(const char *s){
+int kprintf( const char *format, ... ){
 	static VGA tela;
-	tela.write(s);
+	int rv=0;
+	va_list ap;
+	char kprintf_buff [KPRINTF_BUFFER_MAX_SIZE];
+
+	va_start(ap, format);
+	rv = vsnprintf(kprintf_buff, KPRINTF_BUFFER_MAX_SIZE, format, ap);
+//	Deveria funcionar isso:
+	va_end(ap);
+
+//	tela.write("print:\n");
+//	tela.write(format);
+	tela.write(kprintf_buff);
+//	tela.write("/print\n");
+//	tela.write(format);
+	return rv;
 }
 
 VGA::VGA() :

@@ -57,19 +57,45 @@ asm(".globl code\n\t"
 
 #include	<compiler_specific_code.hpp>
 #include	<isa_specific_code.hpp>
+#include	<kernel/monitor.hpp>
 
 extern void (main)();
 
+/*
+volatile uint32_t multiboot_magic;
+volatile uint32_t multiboot_addr;
+
 extern "C" void start(){
+//	get_register_eax(multiboot_magic);
+//	get_register_ebx(multiboot_addr);
 //	http://www.gnu.org/software/grub/manual/multiboot/multiboot.html#kernel_002ec
+
+//	volatile struct multiboot_header *mboot_ptr;
+//	uint32_t xx;
+	asm volatile ("movl %%eax, %0\n\t" : "=r"(multiboot_magic) );
+	asm volatile ("movl %%ebx, %0\n\t" : "=r"(multiboot_addr) );
 	disable_interrupts();
 
+
+	kprintf("multiboot_magic___=%d  \n", multiboot_magic );
+	kprintf("multiboot_addr____=%d  \n", multiboot_addr );
+//	for(;;);
+//	kprintf("mboot_ptr=%d %d asasas",10,10);
+//	kprintf("\n");
+//	kprintf("mboot->bss_end_addr=%p\n",mboot_ptr->bss_end_addr);
+//	kprintf("\n");
+//	kprintf("mboot->load_end_addr=%p\n",mboot_ptr->load_end_addr);
+//	kprintf("\n");
+
+
 	_at_global_begin();
-	main();
+	main( multiboot_magic, multiboot_addr );
 	_at_global_end();
 
 	halt_machine();
 }
+*/
+
 
 extern "C" {
 	void _at_global_begin(){

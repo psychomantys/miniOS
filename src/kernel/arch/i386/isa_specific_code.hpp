@@ -36,6 +36,8 @@ extern "C" {
 	uint16_t inw(const uint16_t &port);
 	void GDT_flush( const volatile struct GDT_ptr &new_gdt );
 	void IDT_load( const volatile struct IDT_ptr &new_idt );
+	void get_register_eax(volatile uint32_t &ret);
+	void get_register_ebx(volatile uint32_t &ret);
 }
 
 #endif	/* ----- #ifndef _ISA_SPECIFIC_CODE__INC  ----- */

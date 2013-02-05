@@ -3,6 +3,7 @@
 
 #include	<kernel/kpp/node.hpp>
 #include	<stdlib.h>
+#include	<kernel/kmalloc.hpp>
 
 template <typename data_t>
 class DQueue {

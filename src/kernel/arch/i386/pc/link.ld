@@ -29,7 +29,7 @@ SECTIONS
 		*(.text*) ;
 
 		*(.gnu.linkonce.t*) ;
-		. = ALIGN(4096);
+		. = ALIGN(8192);
 	} = 0x00100000
 
 	.rodata : ALIGN(4096)
@@ -50,17 +50,17 @@ SECTIONS
 		. = ALIGN(4096);
 	}
 
-	.data : ALIGN(4096)
+	.data : ALIGN(8192)
 	/* : AT(begin_phys_add+(data-code)) */
 	{
 		data = .; _data = .; __data = .;
 
 		*(.data)
 		*(.gnu.linkonce.d*)
-		. = ALIGN(4096);
+		. = ALIGN(8192);
 	}
 
-	.bss : ALIGN(4096)
+	.bss : ALIGN(8192)
 	/* : AT( begin_phys_add+(bss-code) )*/
 	{
 		bss = .; _bss = .; __bss = .;
@@ -69,7 +69,7 @@ SECTIONS
 		*(.bss)
 		*(.gnu.linkonce.b*)
 		ebss = .;
-		. = ALIGN(4096);
+		. = ALIGN(8192);
 	}
 
 	end = .; _end = .; __end = .;
