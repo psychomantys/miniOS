@@ -33,11 +33,14 @@ multiboot_addr:
 	.globl multiboot_addr
 	.zero	4
 
+end_malloc_addr:
+	.globl end_malloc_addr
+	.zero	4
+
 start:
 
-	movl  %eax, multiboot_magic
-	movl  %ebx, multiboot_addr
-
+	movl %eax, multiboot_magic
+	movl %ebx, multiboot_addr
 
 	call disable_interrupts
 

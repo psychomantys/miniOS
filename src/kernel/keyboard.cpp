@@ -23,7 +23,7 @@
 #include	<kernel/irq.hpp>
 #include	<kernel/timer.hpp>
 
-SQueue<char> Keyboard::keyboard_buffer(4);
+SQueue<char> Keyboard::keyboard_buffer(20);
 
 Keyboard::Keyboard( Timer &timer, IRQ& irq ) : timer(timer), irq(irq)
 { }

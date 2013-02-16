@@ -22,16 +22,16 @@
 void *operator new[](unsigned int s){
 	void *p=(void*)(kmalloc(s));
 	if( ! p ){
-		kprintf("Bad alloc %d\n",s);
+//		kprintf("Bad alloc %d\n",s);
 	}	
-	kprintf("p=%p\n",p);
+//	kprintf("p=%p\n",p);
 	return p;
 }
 
 void *operator new(unsigned int s){
 	void *p=(void*)(kmalloc(s));
 	if( ! p ){
-		kprintf("Bad alloc %d\n",s);
+//		kprintf("Bad alloc %d\n",s);
 	}	
 	return p;
 }

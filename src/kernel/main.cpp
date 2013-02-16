@@ -2,13 +2,14 @@
 #include	<kernel/gdt.hpp>
 #include	<kernel/idt.hpp>
 #include	<kernel/irq.hpp>
+#include	<kernel/paging.hpp>
 #include	<kernel/timer.hpp>
 #include	<kernel/keyboard.hpp>
 #include	<kernel/kpp/queue.hpp>
+#include	<kernel/kpp/bitset.hpp>
 #include	<kernel/boot/multiboot.hpp>
 
 #include	<string.h>
-#include	<stdlib.h>
 
 class t{
 	public:
@@ -28,27 +29,24 @@ class t{
 		}
 };
 
-// Não funciona com o IDT
-// acho que tem que mudar as areas de memoria do kernel
 t x1(1);
-t x2(2);
-t x3(3);
 
 GDT gdt;
 IDT idt;
 IRQ irq( idt );
 Timer pit( irq );
 Keyboard kb( pit, irq );
+Paging paging(0x2000000, idt);
 
 
 //static uint32_t bss;
 int main(){
 
-	kprintf("multiboot_addr=%p \n", multiboot_addr);
+	if( multiboot_magic!=MULTIBOOT_BOOTLOADER_MAGIC ){
+		kprintf("multiboot Magic number wrong! (%p)\n", multiboot_addr);
+		halt_machine();
+	}
 
-	kprintf("multiboot_magic=%p\n",multiboot_magic);
-	kprintf("multiboot_addr->bss_end_addr=%p\n",multiboot_addr->bss_end_addr);
-	kprintf("multiboot_addr=%p\n",multiboot_addr);
 	gdt.install();
 	idt.install();
 
@@ -56,19 +54,22 @@ int main(){
 	pit.install();
 	kb.install();
 
+	paging.install();
+
 	enable_interrupts();
+
+	uint32_t *ptr = (uint32_t*)0xA0000000;
+	uint32_t do_page_fault = *ptr;
+/*
+*/
 
 //	int div_error=0/0;
 	t x4(4);
 	t x5(5);
-////	kprintf("Psycho Mantys\n");
-//	pit.wait(20);
-////	kprintf("22222\n");
-//	char *x=(char*)malloc(10);
-	char *x;
-	kprintf("x=%p    \n",x);
-	x=new char[10];
-	kprintf("x=%p    \n",x);
+	kprintf("Psycho Mantys\n");
+	pit.wait(20);
+	char *x=new char[10];
+	kprintf("x=%p\n",x);
 //	DQueue<char> s;
 	x[0]='A';
 	x[1]='A';

@@ -144,6 +144,7 @@ void monitor_write(const char *c){
 
 int kprintf( const char *format, ... ){
 	static VGA tela;
+
 	int rv=0;
 	va_list ap;
 	char kprintf_buff [KPRINTF_BUFFER_MAX_SIZE];

@@ -75,8 +75,6 @@ class VGA {
 		void scroll();
 };
 
-//extern "C" void opa();
-
 extern "C" {
 	int kprintf(const char *format, ... );
 //	void kputch(const char);
