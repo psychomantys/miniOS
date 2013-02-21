@@ -7,6 +7,7 @@
 #include	<kernel/keyboard.hpp>
 #include	<kernel/kpp/queue.hpp>
 #include	<kernel/kpp/bitset.hpp>
+#include	<kernel/kpp/ordered_array.hpp>
 #include	<kernel/boot/multiboot.hpp>
 
 #include	<string.h>
@@ -54,7 +55,7 @@ int main(){
 	pit.install();
 	kb.install();
 
-	paging.install();
+//	paging.install();
 
 	enable_interrupts();
 
@@ -90,6 +91,15 @@ int main(){
 	for( int i=0 ; not s.is_empty() ; ++i ){
 		x[i]=s.pop() ;
 	}
+
+	Ordered_array<int> ar(10);
+	for( int i=0 ; i<10 ; ++i ){
+		ar.insert(i);
+	}
+	for( int i=0 ; i<10 ; ++i ){
+		kprintf("%d ",ar[i]);
+	}
+	kprintf("   size()=%d\n",ar.size());
 
 	kprintf(x);
 	pit.wait(20);
