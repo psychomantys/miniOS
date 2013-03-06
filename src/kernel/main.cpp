@@ -3,6 +3,7 @@
 #include	<kernel/idt.hpp>
 #include	<kernel/irq.hpp>
 #include	<kernel/paging.hpp>
+#include	<kernel/kheap.hpp>
 #include	<kernel/timer.hpp>
 #include	<kernel/keyboard.hpp>
 #include	<kernel/kpp/queue.hpp>
@@ -37,10 +38,9 @@ IDT idt;
 IRQ irq( idt );
 Timer pit( irq );
 Keyboard kb( pit, irq );
-Paging paging(0x2000000, idt);
+Paging paging(0x2000000, idt, KHEAP_START, KHEAP_INITIAL_SIZE);
+KHeap kheap(paging, KHEAP_START, KHEAP_START+KHEAP_INITIAL_SIZE, 0xCFFFF000, 0, 0);
 
-
-//static uint32_t bss;
 int main(){
 
 	if( multiboot_magic!=MULTIBOOT_BOOTLOADER_MAGIC ){
@@ -55,12 +55,13 @@ int main(){
 	pit.install();
 	kb.install();
 
-//	paging.install();
+	paging.install();
 
 	enable_interrupts();
 
-	uint32_t *ptr = (uint32_t*)0xA0000000;
+/*	uint32_t *ptr = (uint32_t*)0xA0000000;
 	uint32_t do_page_fault = *ptr;
+	*/
 /*
 */
 

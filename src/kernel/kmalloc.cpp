@@ -21,46 +21,45 @@
 #include	<kernel/boot/multiboot.hpp>
 
 extern "C" {
-	uint32_t kmalloc(uint32_t sz){
-		kprintf("end_malloc_addr=%p\n",end_malloc_addr);
+	uint32_t kmalloc_basic(const uint32_t &sz, uint32_t *phys, const bool &align){
+		if( align && (end_malloc_addr & 0xFFFFF000) ){ // If the address is not already page-aligned
+			// Align it.
+			end_malloc_addr &= 0xFFFFF000;
+			end_malloc_addr += 0x1000;
+		}
+		if (phys){
+			*phys = end_malloc_addr;
+		}
 		uint32_t tmp = end_malloc_addr;
 		end_malloc_addr += sz;
 		return tmp;
+	}
+
+	uint32_t kmalloc_int(const uint32_t &sz, uint32_t *phys, const bool &align){
+		if( kmalloc_handler ){
+			return kmalloc_handler(sz, phys, align);
+		}
+		return kmalloc_basic(sz, phys, align);
+	}
+
+	uint32_t kmalloc(uint32_t sz){
+		return kmalloc_int(sz, 0, false);
 	}
 
 	uint32_t kmalloc_a(const uint32_t &sz ){
-		if( (end_malloc_addr & 0xFFFFF000) ){ // If the address is not already page-aligned
-			// Align it.
-			end_malloc_addr &= 0xFFFFF000;
-			end_malloc_addr += 0x1000;
-		}
-		uint32_t tmp=end_malloc_addr;
-		end_malloc_addr += sz;
-		return tmp;
+		return kmalloc_int(sz, 0, true);
 	} 
 
 	uint32_t kmalloc_ap(const uint32_t &sz, uint32_t *phys){
-		if( (end_malloc_addr & 0xFFFFF000) ){ // If the address is not already page-aligned
-			// Align it.
-			end_malloc_addr &= 0xFFFFF000;
-			end_malloc_addr += 0x1000;
-		}
-		if (phys){
-			*phys = end_malloc_addr;
-		}
-		uint32_t tmp = end_malloc_addr;
-		end_malloc_addr += sz;
-		return tmp;
+		return kmalloc_int(sz, phys, true);
 	}
 
 	uint32_t kmalloc_p(uint32_t sz, uint32_t *phys){
-		if (phys){
-			*phys = end_malloc_addr;
-		}
-		uint32_t tmp = end_malloc_addr;
-		end_malloc_addr += sz;
-		return tmp;
+		return kmalloc_int(sz, phys, false);
 	}
 
+	void kmalloc_set_handler( kmalloc_handler_t new_handler){
+		kmalloc_handler=new_handler;
+	}
 }
 

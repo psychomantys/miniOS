@@ -3,6 +3,7 @@
 
 #include	<kernel/isr.hpp>
 #include	<kernel/idt.hpp>
+//#include	<kernel/kheap.hpp>
 #include	<kernel/monitor.hpp>
 #include	<kernel/kmalloc.hpp>
 #include	<kernel/kpp/bitset.hpp>
@@ -45,7 +46,9 @@ typedef struct page_directory{
 
 class Paging{
 	public:
-		Paging( const size_t &mem_size, IDT &idt ) :
+		Paging( const size_t &mem_size, IDT &idt, const uint32_t &KHEAP_START,
+			const uint32_t &KHEAP_INITIAL_SIZE
+		) :
 			frame_size(0x1000),
 			frame_qtd(0x2000000/frame_size),
 			frames(frame_qtd),
@@ -56,11 +59,25 @@ class Paging{
 			current_directory = kernel_directory;
 
 			uint32_t i=0;
-			while( i<end_malloc_addr ){
+
+			// Map some pages in the kernel heap area.
+			// Here we call get_page but not alloc_frame. This causes page_table_t's 
+			// to be created where necessary. We can't allocate frames yet because they
+			// they need to be identity mapped first below, and yet we can't increase
+			// placement_address between identity mapping and enabling the heap!
+			for (i = KHEAP_START; i < KHEAP_START+KHEAP_INITIAL_SIZE; i += 0x1000)
+				get_page(i, 1, kernel_directory);
+
+			i=0;
+			while( i<end_malloc_addr+0x1000 ){
 				// Kernel code is readable but not writeable from userspace.
 				alloc_frame( get_page(i, 1, kernel_directory), true, false);
 				i += this->frame_size;
 			}
+
+			// Now allocate those pages we mapped earlier.
+			for (i = KHEAP_START; i < KHEAP_START+KHEAP_INITIAL_SIZE; i += 0x1000)
+				alloc_frame( get_page(i, 1, kernel_directory), false, false);
 		}
 
 		/**
@@ -87,18 +104,16 @@ class Paging{
 		 **/
 		static void page_fault(struct regs *r);
 
+		page_directory_t *kernel_directory;
+		void alloc_frame(page_t *page, const bool &is_kernel, const bool &is_writeable);
+		void free_frame(page_t *page);
 	private:
 		const uint32_t frame_size;
 		const uint32_t frame_qtd;
 		bitset frames;
 		IDT &idt;
 
-		page_directory_t *kernel_directory;
 		page_directory_t *current_directory;
-
-
-		void alloc_frame(page_t *page, const bool &is_kernel, const bool &is_writeable);
-		void free_frame(page_t *page);
 };
 
 #endif   /* ----- #ifndef paging_INC  ----- */
