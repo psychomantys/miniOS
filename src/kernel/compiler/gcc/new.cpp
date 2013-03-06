@@ -37,10 +37,10 @@ void *operator new(unsigned int s){
 }
 
 void operator delete[](void* f){
-//	kfree(f);
+	kfree((uint32_t)(f));
 }
 
 void operator delete(void* f){
-//	kfree(f);
+	kfree((uint32_t)(f));
 }
 

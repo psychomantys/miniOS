@@ -98,7 +98,7 @@ void Paging::page_fault(struct regs *r){
 	int rw = r->err_code & 0x2;           // Write operation?
 	int us = r->err_code & 0x4;           // Processor was in user-mode?
 	int reserved = r->err_code & 0x8;     // Overwritten CPU-reserved bits of page entry?
-	int id = r->err_code & 0x10;          // Caused by an instruction fetch?
+//	int id = r->err_code & 0x10;          // Caused by an instruction fetch?
 
 	// Output an error message.
 	kprintf("Page fault! ( ");
