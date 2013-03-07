@@ -37,9 +37,6 @@ void Paging::alloc_frame(page_t *page, const bool &is_kernel, const bool &is_wri
 		page->rw=is_writeable; // Should the page be writeable?
 		page->user=!is_kernel; // Should the page be user-mode?
 
-//		page->rw=is_writeable?1:0; // Should the page be writeable?
-//		page->user=is_kernel?0:1; // Should the page be user-mode?
-
 		page->frame=idx;
 	}
 }

@@ -65,6 +65,15 @@ int main(){
 /*
 */
 
+	uint32_t a1 = kmalloc(8);
+	uint32_t b = kmalloc(8);
+	uint32_t c = kmalloc(8);
+
+	kprintf("a: %p\nb: %p\nc: %p\n",a1,b,c);
+
+	kfree(a1);
+
+
 //	int div_error=0/0;
 	t x4(4);
 	t x5(5);

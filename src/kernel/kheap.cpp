@@ -54,6 +54,12 @@ uint32_t KHeap::find_smallest_hole(const uint32_t &size, const bool &page_align)
 	}
 } 
 
+static KHeap *kheap_kfree_handler=0;
+
+void kheap_kfree(void *p){
+	kheap_kfree_handler->free(p);
+}
+
 KHeap::KHeap(Paging &paging, uint32_t start, const uint32_t &end,
 	const uint32_t &max, const bool &supervisor, const bool &readonly
 	) :
@@ -92,7 +98,9 @@ KHeap::KHeap(Paging &paging, uint32_t start, const uint32_t &end,
 	hole->magic=KHEAP_MAGIC;
 	hole->is_hole=true;
 	index.insert(*hole);
-//	return heap;
+
+	kheap_kfree_handler=this;
+	kfree_set_handler(kheap_kfree);
 }
 
 void KHeap::expand( uint32_t new_size ){
@@ -257,6 +265,7 @@ void KHeap::free(void *p){
 	footer_t *footer=(footer_t*)( (uint32_t)header+header->size-sizeof(footer_t) );
 
 	// Sanity checks.
+	kprintf("FREEEEEEEE! %p %p h=%p f=%p\n",header->magic,KHEAP_MAGIC,header,footer);
 	ASSERT(header->magic==KHEAP_MAGIC);
 	ASSERT(footer->magic==KHEAP_MAGIC);
 

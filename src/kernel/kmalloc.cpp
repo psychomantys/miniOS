@@ -44,6 +44,17 @@ inline uint32_t kmalloc_int(const uint32_t &sz, uint32_t *phys, const bool &alig
 	return kmalloc_basic(sz, phys, align);
 }
 
+inline void kfree_basic(uint32_t addr){
+	kprintf("Not free yet! %p\n",addr);
+}
+
+inline void kfree_int(const uint32_t sz){
+	if( kfree_handler ){
+		kfree_handler(sz);
+	}
+	kfree_basic(sz);
+}
+
 extern "C" {
 	uint32_t kmalloc(uint32_t sz){
 		return kmalloc_int(sz, 0, false);
@@ -71,6 +82,7 @@ extern "C" {
 
 	void kfree(uint32_t addr){
 		kprintf("Not free yet! %p\n",addr);
+		kfree_int(addr);
 	}
 
 	void kfree_set_handler(kfree_handler_t new_handler){
