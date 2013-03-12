@@ -57,7 +57,7 @@ uint32_t KHeap::find_smallest_hole(const uint32_t &size, const bool &page_align)
 
 static KHeap *kheap_kfree_handler=0;
 
-void kheap_kfree(void *p){
+void kheap_kfree(uint32_t p){
 	kdebug(8,"KHeap *kheap_kfree_handler=%p\n",kheap_kfree_handler);
 	kheap_kfree_handler->free(p);
 }
@@ -81,6 +81,8 @@ KHeap::KHeap(Paging &paging ) :
 void KHeap::install(uint32_t start, const uint32_t &end, const uint32_t &max, const bool &supervisor, const bool &readonly)
 {
 	index=new Ordered_array<header_t*>( (void*)(start), KHEAP_INDEX_SIZE );
+////	index=(Ordered_array<header_t*>*)( kmalloc( sizeof(index) ) );
+////	index->init( (void*)(start), KHEAP_INDEX_SIZE );
 //	heap_t *heap = (heap_t*)( kmalloc(sizeof(heap_t)) );
 
 	// All our assumptions are made on startAddress and endAddress being page-aligned.

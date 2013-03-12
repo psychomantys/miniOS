@@ -62,6 +62,9 @@ class KHeap{
 		  Releases a block allocated with 'alloc'.
 		 **/
 		void free(void *p);
+/*		~KHeap(){
+			delete index;
+		}*/
 };
 
 #endif	/* ----- #ifndef kheap_INC  ----- */

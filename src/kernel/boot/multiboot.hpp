@@ -124,7 +124,7 @@ struct multiboot_header{
 	multiboot_uint32_t width;
 	multiboot_uint32_t height;
 	multiboot_uint32_t depth;
-};
+} __attribute__((packed)) ;
 
 /* The symbol table for a.out. */
 struct multiboot_aout_symbol_table
@@ -195,7 +195,7 @@ struct multiboot_info
 	multiboot_uint16_t vbe_interface_seg;
 	multiboot_uint16_t vbe_interface_off;
 	multiboot_uint16_t vbe_interface_len;
-};
+} __attribute__((packed)) ;
 typedef struct multiboot_info multiboot_info_t;
 
 struct multiboot_mmap_entry
@@ -225,7 +225,7 @@ typedef struct multiboot_mod_list multiboot_module_t;
 
 #endif /* ! ASM_FILE */
 
-extern struct multiboot_header *multiboot_addr;
+extern multiboot_info_t *multiboot_addr;
 extern uint32_t multiboot_magic;
 
 #endif /* ! MULTIBOOT_HEADER */

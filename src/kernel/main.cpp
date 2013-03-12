@@ -31,20 +31,21 @@ class t{
 		}
 };
 
+KMalloc auxxx( end_malloc_addr() );
+
 t x1(1);
 
 GDT gdt;
 IDT idt;
 
-Paging paging(0x2000000, idt, KHEAP_START, KHEAP_INITIAL_SIZE);
-KHeap kheap(paging);
-
 IRQ irq( idt );
 Timer pit( irq );
 Keyboard kb( pit, irq );
 
-int main(){
+Paging paging(0x1000000, idt, KHEAP_START, KHEAP_INITIAL_SIZE);
+KHeap kheap(paging);
 
+int main(){
 	if( multiboot_magic!=MULTIBOOT_BOOTLOADER_MAGIC ){
 		kprintf("multiboot Magic number wrong! (%p)\n", multiboot_addr);
 		halt_machine();
@@ -54,15 +55,17 @@ int main(){
 	idt.install();
 
 	char *a1 = new char[8];
-	paging.install();
-
-	kheap.install(KHEAP_START, KHEAP_START+KHEAP_INITIAL_SIZE, 0xCFFFF000, false, false);
 
 	irq.install();
 	pit.install();
 	kb.install();
 
+	paging.install();
+	
+	kheap.install(KHEAP_START, KHEAP_START+KHEAP_INITIAL_SIZE, 0xCFFFF000, false, false);
+
 	enable_interrupts();
+//	kb.getch();
 
 /*	
 	uint32_t *ptr = (uint32_t*)0xA0000000;
@@ -86,7 +89,6 @@ int main(){
 	char *x=new char[10];
 	kprintf("x=%p\n",x);
 //	DQueue<char> s;
-//	kb.getch();
 	x[0]='A';
 	x[1]='A';
 	x[2]='A';
@@ -102,8 +104,8 @@ int main(){
 	s.push('\n');
 	s.push('\0');
 
-	x1.print();
-	x1.print();
+//	x1.print();
+//	x1.print();
 	for( int i=0 ; not s.is_empty() ; ++i ){
 		x[i]=s.pop() ;
 	}
@@ -127,13 +129,13 @@ int main(){
 
 	t x2(2);
 	t x3(3);
-	x1.print();
+//	x1.print();
 	x3.print();
 
 	t *a=new t[2];
 	int *p_t2=new int[40];
 	
-	x1.print();
+//	x1.print();
 	x3.print();
 
 	kprintf("Vai um delete?\n");
@@ -147,10 +149,10 @@ int main(){
 
 	kprintf("Foi passou delete!!\n");
 
-	x1.print();
+//	x1.print();
 	x2.print();
 
-	kprintf("Final do main kernel!!!!!  %p\n",&x1);
+//	kprintf("Final do main kernel!!!!!  %p\n",&x1);
 	kprintf("Final do main kernel!!!!!\n");
 
 	t tfim(15);

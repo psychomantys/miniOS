@@ -19,20 +19,22 @@
 #include	<kernel/debug.hpp>
 #include	<kernel/kmalloc.hpp>
 
+#include	<isa_specific_code.hpp>
+#include	<plataform_specific_code.hpp>
+
 void *operator new[](unsigned int s){
 	void *p=(void*)(kmalloc(s));
 	if( ! p ){
-		kdebug(2,"Bad alloc %d\n",s);
+		kdebug(3,"Bad alloc %d\n",s);
 	}	
-//	kprintf("p=%p\n",p);
 	return p;
 }
 
 void *operator new(unsigned int s){
 	void *p=(void*)(kmalloc(s));
 	if( ! p ){
-		kdebug(2,"Bad alloc %d\n",s);
-	}	
+		kdebug(3,"Bad alloc %d\n",s);
+	}
 	return p;
 }
 

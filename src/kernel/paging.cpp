@@ -28,7 +28,7 @@ void Paging::alloc_frame(page_t *page, const bool &is_kernel, const bool &is_wri
 		return; // Frame was already allocated, return straight away.
 	}else{
 		size_t idx = frames.first(); // idx is now the index of the first free frame.
-		if( idx==(size_t)-1 ){
+		if( idx==(size_t)(-1) ){
 			// PANIC is just a macro that prints a message to the screen then hits an infinite loop.
 			PANIC("No free frames!");
 		}

@@ -21,32 +21,34 @@
 #include	<kernel/monitor.hpp>
 #include	<kernel/boot/multiboot.hpp>
 
+uint32_t KMalloc::static_end_kmalloc_addr;
+
 static kmalloc_handler_t kmalloc_handler=0;
 static kfree_handler_t kfree_handler=0;
 
 inline uint32_t kmalloc_basic(const uint32_t &sz, uint32_t *phys, const bool &align){
-	if( align && (end_malloc_addr & 0xFFFFF000) ){ // If the address is not already page-aligned
+	if( align && ( end_malloc_addr()&0xFFFFF000 ) ){ // If the address is not already page-aligned
 		// Align it.
-		end_malloc_addr &= 0xFFFFF000;
-		end_malloc_addr += 0x1000;
+		set_end_malloc_addr( end_malloc_addr()&0xFFFFF000 );
+		set_end_malloc_addr( end_malloc_addr()+0x1000 );
 	}
 	if (phys){
-		*phys = end_malloc_addr;
+		*phys=end_malloc_addr();
 	}
-	uint32_t tmp = end_malloc_addr;
-	end_malloc_addr += sz;
+	uint32_t tmp=end_malloc_addr();
+	set_end_malloc_addr( end_malloc_addr()+sz );
 	return tmp;
 }
 
 inline uint32_t kmalloc_int(const uint32_t &sz, uint32_t *phys, const bool &align){
 	uint32_t ret;
+
 	if( kmalloc_handler ){
 		ret=kmalloc_handler(sz, phys, align);
-//		kprintf("kmalloc_int: Alloc! %p\n",ret);
-		return ret;
+	}else{
+		ret=kmalloc_basic(sz, phys, align);
 	}
-	ret=kmalloc_basic(sz, phys, align);
-//	kprintf("kmalloc_int: Alloc! %p\n",ret);
+//	kprintf("kmalloc_int: sz=%p ret=%p kmalloc_handler=%p\n",sz,ret,&kmalloc_handler);
 	return ret;
 }
 
@@ -56,7 +58,7 @@ inline void kfree_basic(uint32_t addr){
 
 inline void kfree_int(const uint32_t sz){
 	kdebug(8,"free_int:\n");
-	if( sz<=end_malloc_addr ){
+	if( sz<=end_malloc_addr() ){
 		kdebug(2,"kfree_int: Not free %u<=%u!\n",sz,end_malloc_addr);
 		return;
 	}
@@ -108,6 +110,14 @@ extern "C" {
 
 	kfree_handler_t kfree_get_handler(){
 		return kfree_handler;
+	}
+	uint32_t end_malloc_addr(){
+		return KMalloc::static_end_kmalloc_addr;
+//		return static_end_kmalloc_addr;
+	}
+	void set_end_malloc_addr(uint32_t p){
+		KMalloc::static_end_kmalloc_addr=p;
+//		static_end_kmalloc_addr=p;
 	}
 }
 

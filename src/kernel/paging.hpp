@@ -50,7 +50,7 @@ class Paging{
 			const uint32_t &KHEAP_INITIAL_SIZE
 		) :
 			frame_size(0x1000),
-			frame_qtd(0x2000000/frame_size),
+			frame_qtd(mem_size/frame_size),
 			frames(frame_qtd),
 			idt(idt)
 		{
@@ -58,18 +58,17 @@ class Paging{
 			memset(kernel_directory, 0, sizeof(page_directory_t));
 			current_directory = kernel_directory;
 
-			uint32_t i=0;
-
 			// Map some pages in the kernel heap area.
 			// Here we call get_page but not alloc_frame. This causes page_table_t's 
 			// to be created where necessary. We can't allocate frames yet because they
 			// they need to be identity mapped first below, and yet we can't increase
 			// placement_address between identity mapping and enabling the heap!
+			uint32_t i=0;
 			for (i = KHEAP_START; i<KHEAP_START+KHEAP_INITIAL_SIZE; i += 0x1000)
 				get_page(i, 1, kernel_directory);
 
 			i=0;
-			while( i<end_malloc_addr+0x1000 ){
+			while( i<end_malloc_addr()+0x1000 ){
 				// Kernel code is readable but not writeable from userspace.
 				alloc_frame( get_page(i, 1, kernel_directory), false, false);
 				i += this->frame_size;
