@@ -41,15 +41,15 @@ class KHeap{
 		uint32_t find_smallest_hole(const uint32_t &size, const bool &page_align);
 		void expand( uint32_t new_size);
 		uint32_t contract(uint32_t new_size);
-		Paging &paging;
 	public:
-		Ordered_array<header_t> index;
+		Paging &paging;
+		Ordered_array<header_t*> *index;
 
 		/**
 		  Create a new heap.
 		**/
-		KHeap( Paging &paging, uint32_t start, const uint32_t &end, const uint32_t &max, const bool &supervisor, const bool &readonly);
-//		void create(const uint32_t &start, const uint32_t &end, const uint32_t &max, const bool &supervisor, const bool &readonly);
+		KHeap( Paging &paging);
+		void install(uint32_t start, const uint32_t &end, const uint32_t &max, const bool &supervisor, const bool &readonly);
 
 		/**
 		  Allocates a contiguous region of memory 'size' in size. If

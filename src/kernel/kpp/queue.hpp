@@ -4,6 +4,7 @@
 #include	<kernel/kpp/node.hpp>
 #include	<stdlib.h>
 #include	<kernel/kmalloc.hpp>
+#include	<kernel/debug.hpp>
 
 template <typename data_t>
 class DQueue {
@@ -65,10 +66,10 @@ class SQueue {
 	private:
 		unsigned int begin;
 		unsigned int end;
-		data_t *base;
 		unsigned int size, max_size;
 
 	public:
+		data_t *base;
 		SQueue() :
 			begin(0),
 			end(0),
@@ -127,7 +128,10 @@ class SQueue {
 		}
 
 		~SQueue(){
-			free(base);
+			int a;
+			kdebug(8,"~SQueue %p %p\n",&a, base);
+//			free(base);
+			kdebug(8,"~SQueue %p %p\n",&a, base);
 		}
 };
 

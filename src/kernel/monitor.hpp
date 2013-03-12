@@ -77,7 +77,6 @@ class VGA {
 
 extern "C" {
 	int kprintf(const char *format, ... );
-//	void kputch(const char);
 }
 
 #endif // MONITOR_HPP

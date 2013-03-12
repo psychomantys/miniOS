@@ -17,6 +17,7 @@
  */
 #include	<kernel/kheap.hpp>
 #include	<string.h>
+#include	<kernel/debug.hpp>
 
 const bool operator<( const header_t &lhs, const header_t &rhs ){
 	return lhs.size<rhs.size;
@@ -25,9 +26,9 @@ const bool operator<( const header_t &lhs, const header_t &rhs ){
 uint32_t KHeap::find_smallest_hole(const uint32_t &size, const bool &page_align){
 	// Find the smallest hole that will fit.
 	uint32_t iterator=0;
-	while( iterator<index.size() ){
+	while( iterator<index->size() ){
 //		header_t *header = (header_t *)lookup_ordered_array(iterator, &heap->index);
-		header_t *header=(header_t*)(&index[iterator]);
+		header_t *header=(header_t*)((*index)[iterator]);
 		// If the user has requested the memory be page-aligned
 		if( page_align>0 ){
 			// Page-align the starting point of this header.
@@ -47,7 +48,7 @@ uint32_t KHeap::find_smallest_hole(const uint32_t &size, const bool &page_align)
 		++iterator;
 	}
 	// Why did the loop exit?
-	if( iterator==index.size() ){
+	if( iterator==index->size() ){
 		return -1; // We got to the end and didn't find anything.
 	}else{
 		return iterator;
@@ -57,16 +58,29 @@ uint32_t KHeap::find_smallest_hole(const uint32_t &size, const bool &page_align)
 static KHeap *kheap_kfree_handler=0;
 
 void kheap_kfree(void *p){
+	kdebug(8,"KHeap *kheap_kfree_handler=%p\n",kheap_kfree_handler);
 	kheap_kfree_handler->free(p);
 }
 
-KHeap::KHeap(Paging &paging, uint32_t start, const uint32_t &end,
-	const uint32_t &max, const bool &supervisor, const bool &readonly
-	) :
-	paging(paging),
-	index( (void*)(start), KHEAP_INDEX_SIZE)
-{
+static KHeap *kheap_kmalloc_handler=0;
 
+inline uint32_t kheap_kmalloc(const uint32_t &sz, uint32_t *phys, const bool &align){
+	uint32_t addr=(uint32_t)( kheap_kmalloc_handler->alloc(sz, align) );
+	if( phys!=0 ){
+		page_t *page=kheap_kmalloc_handler->paging.get_page( (uint32_t)(addr), false, kheap_kmalloc_handler->paging.kernel_directory);
+// ?
+		*phys = (page->frame*0x1000) + (uint32_t)(addr&0xFFF);
+	}
+	return (uint32_t)(addr);
+}
+
+KHeap::KHeap(Paging &paging ) :
+	paging(paging)
+{ }
+
+void KHeap::install(uint32_t start, const uint32_t &end, const uint32_t &max, const bool &supervisor, const bool &readonly)
+{
+	index=new Ordered_array<header_t*>( (void*)(start), KHEAP_INDEX_SIZE );
 //	heap_t *heap = (heap_t*)( kmalloc(sizeof(heap_t)) );
 
 	// All our assumptions are made on startAddress and endAddress being page-aligned.
@@ -78,7 +92,7 @@ KHeap::KHeap(Paging &paging, uint32_t start, const uint32_t &end,
 
 	// Shift the start address forward to resemble where we can start putting data.
 //	start += sizeof(type_t)*HEAP_INDEX_SIZE;
-	start += index.abs_size();
+	start += index->abs_size();
 
 	// Make sure the start address is page-aligned.
 	if( (start&0xFFFFF000)!=0 ){
@@ -97,10 +111,16 @@ KHeap::KHeap(Paging &paging, uint32_t start, const uint32_t &end,
 	hole->size=end_address()-start_address();
 	hole->magic=KHEAP_MAGIC;
 	hole->is_hole=true;
-	index.insert(*hole);
+/*	kprintf("FREEEEEEEE!!! header->magic=%p\n",hole->magic);
+	kprintf("FREEEEEEEE! header->size=%u\n",hole->size);
+	kprintf("FREEEEEEEE! header=%p\n",hole);*/
+	index->insert(hole);
 
 	kheap_kfree_handler=this;
 	kfree_set_handler(kheap_kfree);
+
+	kheap_kmalloc_handler=this;
+	kmalloc_set_handler(kheap_kmalloc);
 }
 
 void KHeap::expand( uint32_t new_size ){
@@ -167,8 +187,8 @@ void *KHeap::alloc(uint32_t size, const bool &page_align){
 		// Vars to hold the index of, and value of, the endmost header found so far.
 		uint32_t idx=-1;
 		uint32_t value = 0x0;
-		while( iterator<index.size() ){
-			uint32_t tmp=(uint32_t)( &index[iterator] );
+		while( iterator<index->size() ){
+			uint32_t tmp=(uint32_t)( (*index)[iterator] );
 			if( tmp>value ){
 				value=tmp;
 				idx=iterator;
@@ -185,10 +205,13 @@ void *KHeap::alloc(uint32_t size, const bool &page_align){
 			footer_t *footer=(footer_t *)(old_end_address+header->size-sizeof(footer_t));
 			footer->magic=KHEAP_MAGIC;
 			footer->header=header;
-			index.insert( *header );
+/*			kprintf("FREEEEEEEE! header->magic=%p\n",header->magic);
+			kprintf("FREEEEEEEE! header->size=%u\n",header->size);
+			kprintf("FREEEEEEEE! header=%p\n",header);*/
+			index->insert( header );
 		}else{
 			// The last header needs adjusting.
-			header_t *header=&index[idx];
+			header_t *header=(*index)[idx];
 			header->size+=new_length-old_length;
 			// Rewrite the footer.
 			footer_t *footer=(footer_t*)( (uint32_t)header+header->size-sizeof(footer_t) );
@@ -198,7 +221,7 @@ void *KHeap::alloc(uint32_t size, const bool &page_align){
 		// We now have enough space. Recurse, and call the function again.
 		return alloc(size, page_align);
 	}
-	header_t *orig_hole_header=&index[iterator];
+	header_t *orig_hole_header=(*index)[iterator];
 	uint32_t orig_hole_pos=(uint32_t)orig_hole_header;
 	uint32_t orig_hole_size=orig_hole_header->size;
 	// Here we work out if we should split the hole we found into two parts.
@@ -222,7 +245,7 @@ void *KHeap::alloc(uint32_t size, const bool &page_align){
 		orig_hole_size        = orig_hole_size - hole_header->size;
 	}else{
 		// Else we don't need this hole any more, delete it from the index.
-		index.remove(iterator);
+		index->remove(iterator);
 	}
 	// Overwrite the original header...
 	header_t *block_header  = (header_t*)orig_hole_pos;
@@ -248,7 +271,10 @@ void *KHeap::alloc(uint32_t size, const bool &page_align){
 			hole_footer->header = hole_header;
 		}
 		// Put the new hole in the index;
-		index.insert(*hole_header);
+/*		kprintf("FREEEEEEEE! header->magic=%p\n",hole_header->magic);
+		kprintf("FREEEEEEEE! header->size=%u\n",hole_header->size);
+		kprintf("FREEEEEEEE! header=%p\n",hole_header);*/
+		index->insert(hole_header);
 	}
 
 	// ...And we're done!
@@ -261,13 +287,26 @@ void KHeap::free(void *p){
 		return;
 
 	// Get the header and footer associated with this pointer.
-	header_t *header=(header_t*)( (uint32_t)p-sizeof(header_t) );
-	footer_t *footer=(footer_t*)( (uint32_t)header+header->size-sizeof(footer_t) );
+	header_t *header=(header_t*)( (uint32_t)(p)-sizeof(header_t));
+	footer_t *footer=(footer_t*)( (uint32_t)(header)+header->size-sizeof(footer_t) );
+//	header_t *header = (header_t*) ( (u32int)p - sizeof(header_t) );
+//	footer_t *footer = (footer_t*) ( (u32int)header + header->size - sizeof(footer_t) );
 
 	// Sanity checks.
-	kprintf("FREEEEEEEE! %p %p h=%p f=%p\n",header->magic,KHEAP_MAGIC,header,footer);
-	ASSERT(header->magic==KHEAP_MAGIC);
-	ASSERT(footer->magic==KHEAP_MAGIC);
+	kdebug(8,"FREEEEEEEE! p=%p\n",p);
+	kdebug(8,"FREEEEEEEE! header=%p\n",header);
+	kdebug(8,"FREEEEEEEE! header->magic=%p\n",header->magic);
+	kdebug(8,"FREEEEEEEE! header->size=%u\n",header->size);
+	kdebug(8,"FREEEEEEEE! footer=%p\n",footer);
+	kdebug(8,"FREEEEEEEE! footer->magic=%p\n",footer->magic);
+	kdebug(8,"KHEAP_MAGIC=%p h=%p f=%p\n\n",KHEAP_MAGIC,header,footer);
+/*
+	*/
+
+//	ASSERT(header->magic==KHEAP_MAGIC);
+//	ASSERT(footer->magic==KHEAP_MAGIC);
+
+	kdebug(8,"FREEEEEEEE! header->magic=%p KHEAP_MAGIC=%p h=%p f=%p\n\n",header->magic,KHEAP_MAGIC,header,footer);
 
 	// Make us a hole.
 	header->is_hole=true;
@@ -278,6 +317,7 @@ void KHeap::free(void *p){
 	// Unify left
 	// If the thing immediately to the left of us is a footer...
 	footer_t *test_footer = (footer_t*) ( (uint32_t)header - sizeof(footer_t) );
+	kdebug(8,"FREEEEEEEE! footer->magic=%p\n",test_footer->magic);
 	if( test_footer->magic == KHEAP_MAGIC &&
 		test_footer->header->is_hole )
 	{
@@ -294,23 +334,24 @@ void KHeap::free(void *p){
 	if( test_header->magic == KHEAP_MAGIC &&
 		test_header->is_hole )
 	{
+		kdebug(8,"FREEEEEEEE! test_header->magic=%p\n",test_header->magic);
 		header->size += test_header->size; // Increase our size.
 		test_footer = (footer_t*) ( (uint32_t)test_header + // Rewrite it's footer to point to our header.
 			test_header->size - sizeof(footer_t) );
 		footer=test_footer;
 		// Find and remove this header from the index.
 		uint32_t iterator=0;
-		while ( (iterator<index.size() ) &&
-			&index[iterator] != (void*)(test_header) )
+//		kprintf("Kheap_free! %p\n",p);
+		while ( (iterator<index->size() ) && (*index)[iterator]!=test_header )
 			iterator++;
 
 		// Make sure we actually found the item.
-		ASSERT( iterator<index.size());
+		ASSERT( iterator<index->size());
 		// Remove it.
-		index.remove(iterator);
+		index->remove(iterator);
 	}
 
 	if (do_add==true)
-		index.insert(*header); 
+		index->insert(header); 
 }
 

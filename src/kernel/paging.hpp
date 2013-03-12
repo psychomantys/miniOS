@@ -65,18 +65,18 @@ class Paging{
 			// to be created where necessary. We can't allocate frames yet because they
 			// they need to be identity mapped first below, and yet we can't increase
 			// placement_address between identity mapping and enabling the heap!
-			for (i = KHEAP_START; i < KHEAP_START+KHEAP_INITIAL_SIZE; i += 0x1000)
+			for (i = KHEAP_START; i<KHEAP_START+KHEAP_INITIAL_SIZE; i += 0x1000)
 				get_page(i, 1, kernel_directory);
 
 			i=0;
 			while( i<end_malloc_addr+0x1000 ){
 				// Kernel code is readable but not writeable from userspace.
-				alloc_frame( get_page(i, 1, kernel_directory), true, false);
+				alloc_frame( get_page(i, 1, kernel_directory), false, false);
 				i += this->frame_size;
 			}
 
 			// Now allocate those pages we mapped earlier.
-			for (i = KHEAP_START; i < KHEAP_START+KHEAP_INITIAL_SIZE; i += 0x1000)
+			for (i = KHEAP_START; i<KHEAP_START+KHEAP_INITIAL_SIZE; i += 0x1000)
 				alloc_frame( get_page(i, 1, kernel_directory), false, false);
 		}
 
@@ -107,6 +107,9 @@ class Paging{
 		page_directory_t *kernel_directory;
 		void alloc_frame(page_t *page, const bool &is_kernel, const bool &is_writeable);
 		void free_frame(page_t *page);
+		~Paging(){
+//			kprintf("~Paging()\n");
+		}
 	private:
 		const uint32_t frame_size;
 		const uint32_t frame_qtd;

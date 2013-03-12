@@ -35,11 +35,13 @@ t x1(1);
 
 GDT gdt;
 IDT idt;
+
+Paging paging(0x2000000, idt, KHEAP_START, KHEAP_INITIAL_SIZE);
+KHeap kheap(paging);
+
 IRQ irq( idt );
 Timer pit( irq );
 Keyboard kb( pit, irq );
-Paging paging(0x2000000, idt, KHEAP_START, KHEAP_INITIAL_SIZE);
-KHeap kheap(paging, KHEAP_START, KHEAP_START+KHEAP_INITIAL_SIZE, 0xCFFFF000, 0, 0);
 
 int main(){
 
@@ -51,43 +53,47 @@ int main(){
 	gdt.install();
 	idt.install();
 
+	char *a1 = new char[8];
+	paging.install();
+
+	kheap.install(KHEAP_START, KHEAP_START+KHEAP_INITIAL_SIZE, 0xCFFFF000, false, false);
+
 	irq.install();
 	pit.install();
 	kb.install();
 
-	paging.install();
-
 	enable_interrupts();
 
-/*	uint32_t *ptr = (uint32_t*)0xA0000000;
+/*	
+	uint32_t *ptr = (uint32_t*)0xA0000000;
+	uint32_t *ptr = (uint32_t*)0x22672c;
 	uint32_t do_page_fault = *ptr;
-	*/
-/*
 */
 
-	uint32_t a1 = kmalloc(8);
-	uint32_t b = kmalloc(8);
-	uint32_t c = kmalloc(8);
+	char *b = new char[8];
+	char *c = new char[8];
 
 	kprintf("a: %p\nb: %p\nc: %p\n",a1,b,c);
 
-	kfree(a1);
+	delete a1;
+	delete b;
+	delete c;
 
 
 //	int div_error=0/0;
-	t x4(4);
-	t x5(5);
 	kprintf("Psycho Mantys\n");
 	pit.wait(20);
 	char *x=new char[10];
 	kprintf("x=%p\n",x);
 //	DQueue<char> s;
+//	kb.getch();
 	x[0]='A';
 	x[1]='A';
 	x[2]='A';
 	x[3]='A';
 	x[4]='\0';
 	kprintf("%s\n",x);
+
 	SQueue<char> s(10);
 
 	s.push('4');
@@ -97,16 +103,18 @@ int main(){
 	s.push('\0');
 
 	x1.print();
-	x4.print();
+	x1.print();
 	for( int i=0 ; not s.is_empty() ; ++i ){
 		x[i]=s.pop() ;
 	}
-
+/*
+*/
 	Ordered_array<int> ar(10);
 	for( int i=0 ; i<10 ; ++i ){
 		ar.insert(i);
 	}
 	for( int i=0 ; i<10 ; ++i ){
+//		t taux(i);
 		kprintf("%d ",ar[i]);
 	}
 	kprintf("   size()=%d\n",ar.size());
@@ -117,20 +125,39 @@ int main(){
 	x[0]=kb.getch();
 	kprintf(x);
 
+	t x2(2);
+	t x3(3);
 	x1.print();
-	x4.print();
+	x3.print();
 
 	t *a=new t[2];
+	int *p_t2=new int[40];
 	
 	x1.print();
-	x4.print();
+	x3.print();
 
+	kprintf("Vai um delete?\n");
+
+	kprintf("%p 1\n",x);
 	delete []x;
+	kprintf("%p p_t2\n",p_t2);
+	delete []p_t2;
+	kprintf("%p 3\n",a);
 	delete []a;
 
-	x1.print();
-	x4.print();
+	kprintf("Foi passou delete!!\n");
 
+	x1.print();
+	x2.print();
+
+	kprintf("Final do main kernel!!!!!  %p\n",&x1);
+	kprintf("Final do main kernel!!!!!\n");
+
+	t tfim(15);
+	tfim.print();
+
+	kprintf("Final do main kernel!!!!!\n");
+	disable_interrupts();
 	return 0x00000042;
 }
 

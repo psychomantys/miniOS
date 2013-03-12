@@ -59,13 +59,24 @@ extern "C" {
 
 
 #endif
-extern "C" {
-	void get_register_eax(volatile uint32_t &ret){
-		asm volatile ("mov %%eax, %0" : "=r"(ret) );
-	}
 
-	void get_register_ebx( volatile uint32_t &ret){
-		asm volatile ("mov %%ebx, %0" : "=r"(ret) );
-	}
+#define macro_get_reg_func(reg) void get_register_##reg (volatile uint32_t &ret){ asm volatile("mov %% " #reg ", %0" : "=r"(ret) );	}
+
+#define macro_set_reg_func(reg) void set_register_##reg (volatile uint32_t ret){ asm volatile("mov %0, %%" #reg : "=r"(ret) );	}
+
+extern "C" {
+	macro_get_reg_func(eax)
+	macro_get_reg_func(ebx)
+	macro_get_reg_func(cr0)
+	macro_get_reg_func(cr1)
+	macro_get_reg_func(cr2)
+	macro_get_reg_func(cr3)
+
+	macro_set_reg_func(eax)
+	macro_set_reg_func(ebx)
+	macro_set_reg_func(cr0)
+	macro_set_reg_func(cr1)
+	macro_set_reg_func(cr2)
+	macro_set_reg_func(cr3)
 }
 

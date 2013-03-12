@@ -17,6 +17,7 @@
  */
 
 #include	<kernel/kmalloc.hpp>
+#include	<kernel/debug.hpp>
 #include	<kernel/monitor.hpp>
 #include	<kernel/boot/multiboot.hpp>
 
@@ -38,21 +39,37 @@ inline uint32_t kmalloc_basic(const uint32_t &sz, uint32_t *phys, const bool &al
 }
 
 inline uint32_t kmalloc_int(const uint32_t &sz, uint32_t *phys, const bool &align){
+	uint32_t ret;
 	if( kmalloc_handler ){
-		return kmalloc_handler(sz, phys, align);
+		ret=kmalloc_handler(sz, phys, align);
+//		kprintf("kmalloc_int: Alloc! %p\n",ret);
+		return ret;
 	}
-	return kmalloc_basic(sz, phys, align);
+	ret=kmalloc_basic(sz, phys, align);
+//	kprintf("kmalloc_int: Alloc! %p\n",ret);
+	return ret;
 }
 
 inline void kfree_basic(uint32_t addr){
-	kprintf("Not free yet! %p\n",addr);
+	kdebug(8,"kfree_basic: Not free yet! %p\n",addr);
 }
 
 inline void kfree_int(const uint32_t sz){
+	kdebug(8,"free_int:\n");
+	if( sz<=end_malloc_addr ){
+		kdebug(2,"kfree_int: Not free %u<=%u!\n",sz,end_malloc_addr);
+		return;
+	}
+
+	kdebug(8,"free_int: kfree_handler=%p addr=%p\n",kfree_handler,sz);
+
 	if( kfree_handler ){
 		kfree_handler(sz);
+	}else{
+		kfree_basic(sz);
 	}
-	kfree_basic(sz);
+	kdebug(8,"free_int: kfree_handler=%p addr=%p\n",kfree_handler,sz);
+	return;
 }
 
 extern "C" {
@@ -81,7 +98,7 @@ extern "C" {
 	}
 
 	void kfree(uint32_t addr){
-		kprintf("Not free yet! %p\n",addr);
+//		kprintf("Not free yet! %p\n",addr);
 		kfree_int(addr);
 	}
 

@@ -20,6 +20,7 @@
 #include	<kernel/kpp/bitset.hpp>
 #include	<kernel/kpp/utils.hpp>
 #include	<kernel/monitor.hpp>
+#include	<isa_specific_code.hpp>
 
 // Function to allocate a frame.
 void Paging::alloc_frame(page_t *page, const bool &is_kernel, const bool &is_writeable){
@@ -59,11 +60,14 @@ void Paging::install(){
 
 void Paging::switch_page_directory(page_directory_t *dir){
 	current_directory = dir;
-	asm volatile("mov %0, %%cr3":: "r"(&dir->tablesPhysical));
+	set_register_cr3((uint32_t)(dir->tablesPhysical));
+//	asm volatile("mov %0, %%cr3":: "r"(&dir->tablesPhysical));
 	uint32_t cr0;
-	asm volatile("mov %%cr0, %0": "=r"(cr0));
+	get_register_cr0(cr0);
+//	asm volatile("mov %%cr0, %0": "=r"(cr0));
 	cr0 |= 0x80000000; // Enable paging!
-	asm volatile("mov %0, %%cr0":: "r"(cr0));
+	set_register_cr0(cr0);
+//	asm volatile("mov %0, %%cr0":: "r"(cr0));
 }
 
 page_t *Paging::get_page(uint32_t address, int make, page_directory_t *dir){
@@ -88,23 +92,24 @@ void Paging::page_fault(struct regs *r){
 	// A page fault has occurred.
 	// The faulting address is stored in the CR2 register.
 	uint32_t faulting_address;
-	asm volatile("mov %%cr2, %0" : "=r" (faulting_address));
+//	asm volatile("mov %%cr2, %0" : "=r" (faulting_address));
+	get_register_cr2(faulting_address);
 
 	// The error code gives us details of what happened.
 	int present   = !(r->err_code & 0x1); // Page not present
 	int rw = r->err_code & 0x2;           // Write operation?
 	int us = r->err_code & 0x4;           // Processor was in user-mode?
 	int reserved = r->err_code & 0x8;     // Overwritten CPU-reserved bits of page entry?
-//	int id = r->err_code & 0x10;          // Caused by an instruction fetch?
+	int id = r->err_code & 0x10;          // Caused by an instruction fetch?
 
 	// Output an error message.
 	kprintf("Page fault! ( ");
 	if (present) { kprintf("present ");}
 	if (rw) { kprintf("read-only ");}
 	if (us) { kprintf("user-mode ");}
+	if (id) { kprintf("instruction-fetch ");}
 	if (reserved) { kprintf("reserved ");}
-	kprintf(") at 0x");
-	kprintf("%p\n",faulting_address);
+	kprintf(") at 0x%p\n",faulting_address);
 	PANIC("Page fault");
 	halt_machine();
 }

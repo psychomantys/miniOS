@@ -57,7 +57,7 @@ asm(".globl code\n\t"
 
 #include	<compiler_specific_code.hpp>
 #include	<isa_specific_code.hpp>
-#include	<kernel/monitor.hpp>
+#include	<kernel/debug.hpp>
 #include	<kernel/kmalloc.hpp>
 
 extern void (main)();
@@ -101,11 +101,12 @@ extern "C" void start(){
 extern "C" {
 	void _at_global_begin(){
 		end_malloc_addr=multiboot_addr->bss_end_addr;
-		kprintf("%p\n",end_malloc_addr);
 		__cxa_atbegin();
 	}
 	void _at_global_end(){
+		kdebug(3,"begin end!\n");
 		__cxa_finalize();
+		kdebug(3,"end end!\n");
 	}
 }
 

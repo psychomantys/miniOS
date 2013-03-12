@@ -2,7 +2,7 @@
 
 QEMU_BIN=qemu-system-i386
 
-BOOT_TIME=4s
+BOOT_TIME=6s
 
 KERNEL_IMAGE="${KERNEL_IMAGE:=miniOS}"
 
