@@ -97,32 +97,24 @@ extern "C" void start(){
 }
 */
 
-uint32_t initrd_location;
+//uint32_t initrd_location;
 
 extern "C" {
 	void _at_global_begin(){
+		kdebug(3,"void _at_global_begin() begin\n");
 		set_end_malloc_addr( *(uint32_t*)(multiboot_addr->mods_addr+4) );
-//		kdebug(0,"end=%p initrd_location=%u\n",end_malloc_addr(),*((uint32_t*)multiboot_addr->mods_addr));
-/*
-//		end_malloc_addr=multiboot_addr->bss_end_addr;
-//		uint32_t initrd_location=multiboot_addr->entry_addr;
-		initrd_location=*((uint32_t*)multiboot_addr->mods_addr);
-//		kdebug(0,"multiboot_addr=%p\n",multiboot_addr);
-//		kdebug(0,"end=%p initrd_location=%u\n",end_malloc_addr,initrd_location );
-		kdebug(0,"end=%p initrd_location=%u\n",end_malloc_addr(),*((uint32_t*)multiboot_addr->mods_addr));
-		kdebug(0,"end=%p initrd_location=%u\n",end_malloc_addr(),*((uint32_t*)multiboot_addr->mods_addr));
-*/		__cxa_atbegin();
-/*		kdebug(0,"multiboot_addr=%u\n",multiboot_addr);
-		kdebug(0,"end=%p initrd_location=%u\n",end_malloc_addr(),*((uint32_t*)multiboot_addr->mods_addr));
-		kdebug(0,"end=%p initrd_location=%u\n",end_malloc_addr(),initrd_location);
-		kdebug(0,"end=%p initrd_location=%u\n",end_malloc_addr(),initrd_location);
-*/
-//	halt_machine();
+
+		kdebug(3,"end=%p initrd_location=%p mb_addr=%p\n",end_malloc_addr(),*((uint32_t*)(multiboot_addr->mods_addr)));
+
+		__cxa_atbegin();
+
+		kdebug(3,"end=%p initrd_location=%p mb_addr=%p\n",end_malloc_addr(),*((uint32_t*)(multiboot_addr->mods_addr)));
+		kdebug(3,"void _at_global_begin() end\n");
 	}
 	void _at_global_end(){
-		kdebug(3,"begin end!\n");
+		kdebug(3,"void _at_global_end() begin\n");
 		__cxa_finalize();
-		kdebug(3,"end end!\n");
+		kdebug(3,"void _at_global_end() begin\n");
 	}
 }
 

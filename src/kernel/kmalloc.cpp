@@ -48,7 +48,7 @@ inline uint32_t kmalloc_int(const uint32_t &sz, uint32_t *phys, const bool &alig
 	}else{
 		ret=kmalloc_basic(sz, phys, align);
 	}
-//	kprintf("kmalloc_int: sz=%p ret=%p kmalloc_handler=%p\n",sz,ret,&kmalloc_handler);
+	kdebug(4,"kmalloc_int: sz=%p ret=%p kmalloc_handler=%p\n",sz,ret,&kmalloc_handler);
 	return ret;
 }
 
