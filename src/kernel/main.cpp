@@ -10,6 +10,7 @@
 #include	<kernel/kpp/bitset.hpp>
 #include	<kernel/kpp/ordered_array.hpp>
 #include	<kernel/boot/multiboot.hpp>
+#include	<kernel/fs/initrd.hpp>
 
 #include	<string.h>
 
@@ -82,6 +83,10 @@ int main(){
 	delete b;
 	delete c;
 
+
+	uint32_t initrd_location=*((uint32_t*)(multiboot_addr->mods_addr));
+
+	kprintf("initrd_begin=%p mb_addr=%p\n",initrd_location,multiboot_addr);
 
 //	int div_error=0/0;
 	kprintf("Psycho Mantys\n");
@@ -157,6 +162,39 @@ int main(){
 
 	t tfim(15);
 	tfim.print();
+
+	if( multiboot_addr->mods_count>0 ){
+		kprintf("Have initrd!!\n");
+		fs_root=initialise_initrd(initrd_location);
+		uint32_t initrd_location=*((uint32_t*)(multiboot_addr->mods_addr));
+//		uint32_t initrd_end=*((uint32_t*)(multiboot_addr->mods_addr+4));
+
+
+		// list the contents of /
+		int i = 0;
+		struct dirent *node = 0;
+		while ( (node = readdir_fs(fs_root, i))!=0) {
+			kprintf("Found file %s",node->name);
+			fs_node_t *fsnode = finddir_fs(fs_root, node->name);
+
+			if( (fsnode->flags&0x7)==FS_DIRECTORY ){
+				kprintf("\n\t(directory)\n");
+			}else{
+				kprintf("\n\t contents: \"");
+				char buf[256];
+				uint32_t sz=read_fs(fsnode, 0, 256, buf);
+				int j;
+				for( j=0 ; j<sz ; j++)
+					kprintf("%c",buf[j]);
+
+				kprintf("\"\n");
+			}
+			++i;
+		} 
+
+	}else{
+		kprintf("No initrd.\n");
+	}
 
 	kprintf("Final do main kernel!!!!!\n");
 	disable_interrupts();
