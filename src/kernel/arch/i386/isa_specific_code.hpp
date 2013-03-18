@@ -37,8 +37,11 @@ extern "C" {
 	void GDT_flush( const volatile struct GDT_ptr &new_gdt );
 	void IDT_load( const volatile struct IDT_ptr &new_idt );
 
+	uint32_t read_eip();
+
 	void get_register_eax(volatile uint32_t &ret);
 	void get_register_ebx(volatile uint32_t &ret);
+	void get_register_ebp(volatile uint32_t &ret);
 
 	void get_register_cr0( volatile uint32_t &ret);
 	void get_register_cr1( volatile uint32_t &ret);
@@ -47,6 +50,7 @@ extern "C" {
 
 	void set_register_eax(volatile uint32_t ret);
 	void set_register_ebx(volatile uint32_t ret);
+	void set_register_ebp(volatile uint32_t ret);
 
 	void set_register_cr0( volatile uint32_t ret);
 	void set_register_cr1( volatile uint32_t ret);

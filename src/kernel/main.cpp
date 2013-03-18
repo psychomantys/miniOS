@@ -184,9 +184,9 @@ int main(){
 				char buf[256];
 				uint32_t sz=read_fs(fsnode, 0, 256, buf);
 				int j;
-				for( j=0 ; j<sz ; j++)
+				for( j=0 ; j<sz ; j++){
 					kprintf("%c",buf[j]);
-
+				}
 				kprintf("\"\n");
 			}
 			++i;

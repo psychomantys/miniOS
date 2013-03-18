@@ -25,6 +25,10 @@ mboot:
 	.long	rodata
 	.long	start
 
+initial_esp:
+	.globl	initial_esp
+	.zero	4
+
 multiboot_magic:
 	.globl	multiboot_magic
 	.zero	4
@@ -38,6 +42,7 @@ start:
 
 	movl %eax, multiboot_magic
 	movl %ebx, multiboot_addr
+	movl %esp, initial_esp
 
 	call _at_global_begin
 	call main

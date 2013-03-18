@@ -92,6 +92,13 @@ class Paging{
 		void switch_page_directory(page_directory_t *new_page);
 
 		/**
+		   Makes a copy of a page directory.
+		**/
+		page_directory_t *clone_directory(page_directory_t *src);
+
+		page_table_t *clone_table(page_table_t *src, uint32_t *physAddr);
+
+		/**
 		 * Retrieves a pointer to the page required.
 		 * If make == 1, if the page-table in which this page should
 		 * reside isn't created, create it!
@@ -104,6 +111,8 @@ class Paging{
 		static void page_fault(struct regs *r);
 
 		page_directory_t *kernel_directory;
+		page_directory_t *current_directory;
+
 		void alloc_frame(page_t *page, const bool &is_kernel, const bool &is_writeable);
 		void free_frame(page_t *page);
 		~Paging(){
@@ -114,8 +123,6 @@ class Paging{
 		const uint32_t frame_qtd;
 		bitset frames;
 		IDT &idt;
-
-		page_directory_t *current_directory;
 };
 
 #endif   /* ----- #ifndef paging_INC  ----- */

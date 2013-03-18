@@ -114,3 +114,85 @@ void Paging::page_fault(struct regs *r){
 	halt_machine();
 }
 
+page_directory_t *Paging::clone_directory(page_directory_t *src){
+	uint32_t phys;
+	// Make a new page directory and obtain its physical address.
+	page_directory_t *dir = (page_directory_t*)kmalloc_ap(sizeof(page_directory_t), &phys);
+	// Ensure that it is blank.
+	memset(dir, 0, sizeof(page_directory_t));
+
+	// Get the offset of tablesPhysical from the start of the page_directory_t structure.
+	uint32_t offset = (uint32_t)dir->tablesPhysical - (uint32_t)dir;
+
+	// Then the physical address of dir->tablesPhysical is:
+	dir->physicalAddr = phys + offset;
+
+	// Go through each page table. If the page table is in the kernel directory, do not make a new copy.
+	int i;
+	for (i = 0; i < 1024; i++)
+	{
+		if (!src->tables[i])
+			continue;
+
+		if (kernel_directory->tables[i] == src->tables[i])
+		{
+			// It's in the kernel, so just use the same pointer.
+			dir->tables[i] = src->tables[i];
+			dir->tablesPhysical[i] = src->tablesPhysical[i];
+		}
+		else
+		{
+			// Copy the table.
+			uint32_t phys;
+			dir->tables[i] = clone_table(src->tables[i], &phys);
+			dir->tablesPhysical[i] = phys | 0x07;
+		}
+	}
+	return dir;
+}
+
+
+void copy_page_physical( uint32_t dest, uint32_t src){
+	disable_interrupts();
+
+	register uint32_t cr0;
+	get_register_cr0(cr0);
+	cr0 &= 0x7fffffff;
+	set_register_cr0(cr0);
+
+	memset(dest, src, 4*1024 );
+
+	get_register_cr0(cr0);
+	cr0 |= 0x80000000;
+	set_register_cr0(cr0);
+}
+
+
+page_table_t *Paging::clone_table(page_table_t *src, uint32_t *physAddr){
+    // Make a new page table, which is page aligned.
+    page_table_t *table = (page_table_t*)kmalloc_ap(sizeof(page_table_t), physAddr);
+    // Ensure that the new table is blank.
+    memset(table, 0, sizeof(page_directory_t));
+
+    // For every entry in the table...
+    int i;
+    for (i = 0; i < 1024; i++)
+    {
+        // If the source entry has a frame associated with it...
+        if (src->pages[i].frame)
+        {
+            // Get a new frame.
+            alloc_frame(&table->pages[i], 0, 0);
+            // Clone the flags from source to destination.
+            if (src->pages[i].present) table->pages[i].present = 1;
+            if (src->pages[i].rw) table->pages[i].rw = 1;
+            if (src->pages[i].user) table->pages[i].user = 1;
+            if (src->pages[i].accessed) table->pages[i].accessed = 1;
+            if (src->pages[i].dirty) table->pages[i].dirty = 1;
+            // Physically copy the data across. This function is in process.s.
+            copy_page_physical(src->pages[i].frame*0x1000, table->pages[i].frame*0x1000);
+        }
+    }
+    return table;
+}
+

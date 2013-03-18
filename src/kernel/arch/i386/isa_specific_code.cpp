@@ -67,6 +67,7 @@ extern "C" {
 extern "C" {
 	macro_get_reg_func(eax)
 	macro_get_reg_func(ebx)
+	macro_get_reg_func(ebp)
 	macro_get_reg_func(cr0)
 	macro_get_reg_func(cr1)
 	macro_get_reg_func(cr2)
@@ -74,9 +75,11 @@ extern "C" {
 
 	macro_set_reg_func(eax)
 	macro_set_reg_func(ebx)
+	macro_set_reg_func(ebp)
 	macro_set_reg_func(cr0)
 	macro_set_reg_func(cr1)
 	macro_set_reg_func(cr2)
 	macro_set_reg_func(cr3)
 }
+
 

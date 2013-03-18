@@ -58,7 +58,6 @@ halt_machine:
 
 
 
-
 .globl disable_interrupts
 disable_interrupts:
 	pushl	%ebp
