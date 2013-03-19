@@ -18,17 +18,17 @@
 
 #include	<kernel/task.hpp>
 
-void Multitask::initialise_tasking(){
+void Multitask::install(){
 	// Rather important stuff happening, no interrupts please!
-	// asm volatile("cli");
 	disable_interrupts();
 
 	// Relocate the stack so we know where it is.
 	move_stack((void*)0xE0000000, 0x2000);
+//	move_stack((void*)0xF0000000, 0x2000);
 
 	// Initialise the first task (kernel task)
 	current_task = ready_queue = (task_t*)kmalloc(sizeof(task_t));
-	current_task->id = next_pid++;
+	current_task->id = ++next_pid;
 	current_task->esp = current_task->ebp = 0;
 	current_task->eip = 0;
 	current_task->page_directory = paging.current_directory;
@@ -36,15 +36,15 @@ void Multitask::initialise_tasking(){
 
 	// Reenable interrupts.
 	enable_interrupts();
-//	asm volatile("sti");
 }
 
 void Multitask::move_stack(void *new_stack_start, uint32_t size){
+//	disable_interrupts();
 	uint32_t i;
 	// Allocate some space for the new stack.
 	for( i = (uint32_t)new_stack_start;
-			i >= ((uint32_t)new_stack_start-size);
-			i -= 0x1000)
+		i >= ((uint32_t)new_stack_start-size);
+		i -= 0x1000)
 	{
 		// General-purpose stack is in user-mode.
 		paging.alloc_frame( paging.get_page(i, 1, paging.current_directory), false /* User mode */, true /* Is writable */ );
@@ -54,10 +54,14 @@ void Multitask::move_stack(void *new_stack_start, uint32_t size){
 	uint32_t pd_addr;
 	asm volatile("mov %%cr3, %0" : "=r" (pd_addr));
 	asm volatile("mov %0, %%cr3" : : "r" (pd_addr));
+//	get_register_cr3(pd_addr);
+//	set_register_cr3(pd_addr);
 
 	// Old ESP and EBP, read from registers.
 	uint32_t old_stack_pointer; asm volatile("mov %%esp, %0" : "=r" (old_stack_pointer));
+//	uint32_t old_stack_pointer; get_register_esp(old_stack_pointer);
 	uint32_t old_base_pointer;  asm volatile("mov %%ebp, %0" : "=r" (old_base_pointer));
+//	uint32_t old_base_pointer;  get_register_ebp(old_base_pointer);
 
 	// Offset to add to old stack addresses to get a new stack address.
 	uint32_t offset            = (uint32_t)new_stack_start - initial_esp;
@@ -67,6 +71,7 @@ void Multitask::move_stack(void *new_stack_start, uint32_t size){
 	uint32_t new_base_pointer  = old_base_pointer  + offset;
 
 	// Copy the stack.
+	kprintf("Foi?xxx %p %p %p\n",(void*)new_stack_pointer, (void*)old_stack_pointer, initial_esp-old_stack_pointer);
 	memcpy((void*)new_stack_pointer, (void*)old_stack_pointer, initial_esp-old_stack_pointer);
 
 	// Backtrace through the original stack, copying new values into
@@ -88,6 +93,9 @@ void Multitask::move_stack(void *new_stack_start, uint32_t size){
 	// Change stacks.
 	asm volatile("mov %0, %%esp" : : "r" (new_stack_pointer));
 	asm volatile("mov %0, %%ebp" : : "r" (new_base_pointer));
+//	set_register_esp(new_stack_pointer);
+//	set_register_ebp(new_base_pointer);
+	enable_interrupts();
 }
 
 void Multitask::switch_task(){
@@ -156,6 +164,7 @@ void Multitask::switch_task(){
 int Multitask::fork(){
 	// We are modifying kernel structures, and so cannot
 	asm volatile("cli");
+	//disable_interrupts();
 
 	// Take a pointer to this process' task struct for later reference.
 	task_t *parent_task = (task_t*)current_task;
@@ -189,6 +198,8 @@ int Multitask::fork(){
 		new_task->esp = esp;
 		new_task->ebp = ebp;
 		new_task->eip = eip;
+		
+//		enable_interrupts();
 		asm volatile("sti");
 
 		return new_task->id;
@@ -215,39 +226,4 @@ void copy_page_physical( uint32_t dest, uint32_t src){
 	set_register_cr0(cr0);
 }
 */
-/*
-   .globl copy_page_physical
-copy_page_physical:
-push ebx              ; According to __cdecl, we must preserve the contents of EBX.
-pushf                 ; push EFLAGS, so we can pop it and reenable interrupts
-; later, if they were enabled anyway.
-cli                   ; Disable interrupts, so we aren't interrupted.
-; Load these in BEFORE we disable paging!
-mov ebx, [esp+12]     ; Source address
-mov ecx, [esp+16]     ; Destination address
-
-mov edx, cr0          ; Get the control register...
-and edx, 0x7fffffff   ; and...
-mov cr0, edx          ; Disable paging.
-
-mov edx, 1024         ; 1024*4bytes = 4096 bytes to copy
-
-.loop:
-mov eax, [ebx]        ; Get the word at the source address
-mov [ecx], eax        ; Store it at the dest address
-add ebx, 4            ; Source address += sizeof(word)
-add ecx, 4            ; Dest address += sizeof(word)
-dec edx               ; One less word to do
-jnz .loop
-
-mov edx, cr0          ; Get the control register again
-or  edx, 0x80000000   ; and...
-mov cr0, edx          ; Enable paging.
-
-popf                  ; Pop EFLAGS back.
-pop ebx               ; Get the original value of EBX back.
-ret
-*/
-
-
 

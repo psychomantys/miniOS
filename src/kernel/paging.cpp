@@ -60,14 +60,12 @@ void Paging::install(){
 
 void Paging::switch_page_directory(page_directory_t *dir){
 	current_directory = dir;
-	set_register_cr3((uint32_t)(dir->tablesPhysical));
-//	asm volatile("mov %0, %%cr3":: "r"(&dir->tablesPhysical));
+	asm volatile("mov %0, %%cr3":: "r"(dir->physicalAddr)); // ******** MODIFIED *********
+//	set_register_cr3(dir->tablesPhysical);
 	uint32_t cr0;
 	get_register_cr0(cr0);
-//	asm volatile("mov %%cr0, %0": "=r"(cr0));
 	cr0 |= 0x80000000; // Enable paging!
 	set_register_cr0(cr0);
-//	asm volatile("mov %0, %%cr0":: "r"(cr0));
 }
 
 page_t *Paging::get_page(uint32_t address, int make, page_directory_t *dir){
@@ -116,10 +114,13 @@ void Paging::page_fault(struct regs *r){
 
 page_directory_t *Paging::clone_directory(page_directory_t *src){
 	uint32_t phys;
+	disable_interrupts();
 	// Make a new page directory and obtain its physical address.
 	page_directory_t *dir = (page_directory_t*)kmalloc_ap(sizeof(page_directory_t), &phys);
 	// Ensure that it is blank.
-	memset(dir, 0, sizeof(page_directory_t));
+	kprintf("Foi? %p\n",dir);
+//	memset(dir, 0, sizeof(page_directory_t));
+	kprintf("Foi 2?\n");
 
 	// Get the offset of tablesPhysical from the start of the page_directory_t structure.
 	uint32_t offset = (uint32_t)dir->tablesPhysical - (uint32_t)dir;
@@ -129,8 +130,8 @@ page_directory_t *Paging::clone_directory(page_directory_t *src){
 
 	// Go through each page table. If the page table is in the kernel directory, do not make a new copy.
 	int i;
-	for (i = 0; i < 1024; i++)
-	{
+	for (i = 0; i < 1024; i++){
+		kprintf("Foi 2? %u\n",i);
 		if (!src->tables[i])
 			continue;
 
@@ -152,6 +153,7 @@ page_directory_t *Paging::clone_directory(page_directory_t *src){
 }
 
 
+/*
 void copy_page_physical( uint32_t dest, uint32_t src){
 	disable_interrupts();
 
@@ -166,33 +168,34 @@ void copy_page_physical( uint32_t dest, uint32_t src){
 	cr0 |= 0x80000000;
 	set_register_cr0(cr0);
 }
-
+*/
 
 page_table_t *Paging::clone_table(page_table_t *src, uint32_t *physAddr){
-    // Make a new page table, which is page aligned.
-    page_table_t *table = (page_table_t*)kmalloc_ap(sizeof(page_table_t), physAddr);
-    // Ensure that the new table is blank.
-    memset(table, 0, sizeof(page_directory_t));
+	// Make a new page table, which is page aligned.
+	page_table_t *table = (page_table_t*)kmalloc_ap(sizeof(page_table_t), physAddr);
+	// Ensure that the new table is blank.
+	memset(table, 0, sizeof(page_directory_t));
 
-    // For every entry in the table...
-    int i;
-    for (i = 0; i < 1024; i++)
-    {
-        // If the source entry has a frame associated with it...
-        if (src->pages[i].frame)
-        {
-            // Get a new frame.
-            alloc_frame(&table->pages[i], 0, 0);
-            // Clone the flags from source to destination.
-            if (src->pages[i].present) table->pages[i].present = 1;
-            if (src->pages[i].rw) table->pages[i].rw = 1;
-            if (src->pages[i].user) table->pages[i].user = 1;
-            if (src->pages[i].accessed) table->pages[i].accessed = 1;
-            if (src->pages[i].dirty) table->pages[i].dirty = 1;
-            // Physically copy the data across. This function is in process.s.
-            copy_page_physical(src->pages[i].frame*0x1000, table->pages[i].frame*0x1000);
-        }
-    }
-    return table;
+	// For every entry in the table...
+	int i;
+	for (i = 0; i < 1024; i++)
+	{
+		// If the source entry has a frame associated with it...
+		if (src->pages[i].frame)
+		{
+			// Get a new frame.
+			alloc_frame(&table->pages[i], 0, 0);
+			// Clone the flags from source to destination.
+			if (src->pages[i].present) table->pages[i].present = 1;
+			if (src->pages[i].rw) table->pages[i].rw = 1;
+			if (src->pages[i].user) table->pages[i].user = 1;
+			if (src->pages[i].accessed) table->pages[i].accessed = 1;
+			if (src->pages[i].dirty) table->pages[i].dirty = 1;
+			// Physically copy the data across. This function is in process.s.
+			copy_page_physical(src->pages[i].frame*0x1000, table->pages[i].frame*0x1000);
+			//copy_page_physical(src->pages[i].frame, table->pages[i].frame);
+		}
+	}
+	return table;
 }
 

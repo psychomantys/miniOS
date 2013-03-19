@@ -56,7 +56,8 @@ class Paging{
 		{
 			kernel_directory = (page_directory_t*)kmalloc_a(sizeof(page_directory_t));
 			memset(kernel_directory, 0, sizeof(page_directory_t));
-			current_directory = kernel_directory;
+//			current_directory = kernel_directory;
+			kernel_directory->physicalAddr = (uint32_t)(kernel_directory->tablesPhysical);
 
 			// Map some pages in the kernel heap area.
 			// Here we call get_page but not alloc_frame. This causes page_table_t's 
@@ -71,7 +72,7 @@ class Paging{
 			while( i<end_malloc_addr()+0x1000 ){
 				// Kernel code is readable but not writeable from userspace.
 				alloc_frame( get_page(i, 1, kernel_directory), false, false);
-				i += this->frame_size;
+				i += 0x1000;
 			}
 
 			// Now allocate those pages we mapped earlier.

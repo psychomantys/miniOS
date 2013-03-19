@@ -5,9 +5,6 @@
 
 #include	<stdint.h>
 
-//#define USE_INLINE_ASM
-#ifdef USE_INLINE_ASM
-
 extern "C" {
 	void GDT_flush( const volatile GDT_ptr &new_gdt ){
 		asm volatile ("lgdt (%0)" : : "dN" (&new_gdt) );
@@ -58,16 +55,14 @@ extern "C" {
 	}
 
 
-#endif
-
 #define macro_get_reg_func(reg) void get_register_##reg (volatile uint32_t &ret){ asm volatile("mov %% " #reg ", %0" : "=r"(ret) );	}
 
 #define macro_set_reg_func(reg) void set_register_##reg (volatile uint32_t ret){ asm volatile("mov %0, %%" #reg : "=r"(ret) );	}
 
-extern "C" {
 	macro_get_reg_func(eax)
 	macro_get_reg_func(ebx)
 	macro_get_reg_func(ebp)
+	macro_get_reg_func(esp)
 	macro_get_reg_func(cr0)
 	macro_get_reg_func(cr1)
 	macro_get_reg_func(cr2)
@@ -76,10 +71,10 @@ extern "C" {
 	macro_set_reg_func(eax)
 	macro_set_reg_func(ebx)
 	macro_set_reg_func(ebp)
+	macro_set_reg_func(esp)
 	macro_set_reg_func(cr0)
 	macro_set_reg_func(cr1)
 	macro_set_reg_func(cr2)
 	macro_set_reg_func(cr3)
 }
-
 

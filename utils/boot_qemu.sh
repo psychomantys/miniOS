@@ -14,5 +14,5 @@ if ! which "${QEMU_BIN}" &>/dev/null ; then
 	QEMU_BIN=qemu
 fi
 
-( sleep "${BOOT_TIME}" ; echo info registers ) | ${QEMU_BIN} -kernel "${KERNEL_IMAGE}" -monitor stdio $*
+( sleep "${BOOT_TIME}" ; echo info registers ) | ${QEMU_BIN} -kernel "${KERNEL_IMAGE}" -monitor stdio -no-shutdown -no-reboot $*
 

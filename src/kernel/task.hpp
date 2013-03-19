@@ -39,7 +39,7 @@ class Multitask{
 		{ }
 
 		// Initialises the tasking system.
-		void initialise_tasking();
+		void install();
 
 		// Called by the timer hook, this changes the running process.
 		void task_switch();

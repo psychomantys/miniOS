@@ -1,4 +1,5 @@
 #include	<kernel/monitor.hpp>
+#include	<kernel/start.hpp>
 #include	<kernel/gdt.hpp>
 #include	<kernel/idt.hpp>
 #include	<kernel/irq.hpp>
@@ -11,6 +12,7 @@
 #include	<kernel/kpp/ordered_array.hpp>
 #include	<kernel/boot/multiboot.hpp>
 #include	<kernel/fs/initrd.hpp>
+#include	<kernel/task.hpp>
 
 #include	<string.h>
 
@@ -36,34 +38,37 @@ KMalloc auxxx( end_malloc_addr() );
 
 t x1(1);
 
-GDT gdt;
-IDT idt;
-
-IRQ irq( idt );
-Timer pit( irq );
-Keyboard kb( pit, irq );
-
-Paging paging(0x1000000, idt, KHEAP_START, KHEAP_INITIAL_SIZE);
-KHeap kheap(paging);
-
 int main(){
+	GDT gdt;
+	IDT idt;
+
+	gdt.install();
+	idt.install();
+
+	IRQ irq( idt );
+	irq.install();
+
+	Timer pit( irq );
+	Keyboard kb( pit, irq );
+	pit.install();
+	kb.install();
+
+	char *a1 = new char[8];
+
+	Paging paging(0x1000000, idt, KHEAP_START, KHEAP_INITIAL_SIZE);
+	paging.install();
+
+	KHeap kheap(paging);
+	kheap.install(KHEAP_START, KHEAP_START+KHEAP_INITIAL_SIZE, 0xCFFFF000, false, false);
+
+	Multitask multitask(paging);
+	multitask.install();
+
 	if( multiboot_magic!=MULTIBOOT_BOOTLOADER_MAGIC ){
 		kprintf("multiboot Magic number wrong! (%p)\n", multiboot_addr);
 		halt_machine();
 	}
 
-	gdt.install();
-	idt.install();
-
-	char *a1 = new char[8];
-
-	irq.install();
-	pit.install();
-	kb.install();
-
-	paging.install();
-	
-	kheap.install(KHEAP_START, KHEAP_START+KHEAP_INITIAL_SIZE, 0xCFFFF000, false, false);
 
 	enable_interrupts();
 //	kb.getch();
@@ -77,7 +82,7 @@ int main(){
 	char *b = new char[8];
 	char *c = new char[8];
 
-	kprintf("a: %p\nb: %p\nc: %p\n",a1,b,c);
+	kprintf("a: %p\nb: %p\nc: %p\ninitial_esp: %p\n",a1,b,c,initial_esp);
 
 	delete a1;
 	delete b;
@@ -157,11 +162,14 @@ int main(){
 //	x1.print();
 	x2.print();
 
-//	kprintf("Final do main kernel!!!!!  %p\n",&x1);
-	kprintf("Final do main kernel!!!!!\n");
-
 	t tfim(15);
 	tfim.print();
+	
+	kprintf("Vai fork?!!!!\n");
+	int ret = multitask.fork();
+
+	disable_interrupts();
+	kprintf("Fork?!!!! %d\n",ret);
 
 	if( multiboot_addr->mods_count>0 ){
 		kprintf("Have initrd!!\n");
@@ -197,7 +205,7 @@ int main(){
 	}
 
 	kprintf("Final do main kernel!!!!!\n");
-	disable_interrupts();
+	enable_interrupts();
 	return 0x00000042;
 }
 

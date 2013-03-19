@@ -70,6 +70,7 @@ inline uint32_t kheap_kmalloc(const uint32_t &sz, uint32_t *phys, const bool &al
 		page_t *page=kheap_kmalloc_handler->paging.get_page( (uint32_t)(addr), false, kheap_kmalloc_handler->paging.kernel_directory);
 // ?
 		*phys = (page->frame*0x1000) + (uint32_t)(addr&0xFFF);
+//		*phys = (page->frame) + (uint32_t)(addr&0xFFF);
 	}
 	return (uint32_t)(addr);
 }
@@ -113,9 +114,11 @@ void KHeap::install(uint32_t start, const uint32_t &end, const uint32_t &max, co
 	hole->size=end_address()-start_address();
 	hole->magic=KHEAP_MAGIC;
 	hole->is_hole=true;
-/*	kprintf("FREEEEEEEE!!! header->magic=%p\n",hole->magic);
+/*
+	kprintf("FREEEEEEEE!!! header->magic=%p\n",hole->magic);
 	kprintf("FREEEEEEEE! header->size=%u\n",hole->size);
-	kprintf("FREEEEEEEE! header=%p\n",hole);*/
+	kprintf("FREEEEEEEE! header=%p\n",hole);
+*/
 	index->insert(hole);
 
 	kheap_kfree_handler=this;
@@ -123,6 +126,13 @@ void KHeap::install(uint32_t start, const uint32_t &end, const uint32_t &max, co
 
 	kheap_kmalloc_handler=this;
 	kmalloc_set_handler(kheap_kmalloc);
+
+	paging.current_directory=paging.clone_directory(paging.kernel_directory);
+	paging.switch_page_directory(paging.current_directory);
+
+//	kprintf("Sai!!!\n");
+//	halt_machine();
+
 }
 
 void KHeap::expand( uint32_t new_size ){
