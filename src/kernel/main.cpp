@@ -174,7 +174,7 @@ int main(){
 	if( multiboot_addr->mods_count>0 ){
 		kprintf("Have initrd!!\n");
 		fs_root=initialise_initrd(initrd_location);
-		uint32_t initrd_location=*((uint32_t*)(multiboot_addr->mods_addr));
+//		uint32_t initrd_location=*((uint32_t*)(multiboot_addr->mods_addr));
 //		uint32_t initrd_end=*((uint32_t*)(multiboot_addr->mods_addr+4));
 
 
@@ -190,8 +190,8 @@ int main(){
 			}else{
 				kprintf("\n\t contents: \"");
 				char buf[256];
-				uint32_t sz=read_fs(fsnode, 0, 256, buf);
-				int j;
+				uint32_t sz=read_fs(fsnode, 0, 256, (uint8_t*)(buf));
+				uint32_t j;
 				for( j=0 ; j<sz ; j++){
 					kprintf("%c",buf[j]);
 				}

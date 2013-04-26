@@ -54,7 +54,7 @@ void Paging::free_frame(page_t *page){
 }
 
 void Paging::install(){
-	idt.set_gate(14, Paging::page_fault, 0x08, 0x8E);
+	idt.set_gate(14, (uint32_t)(Paging::page_fault), 0x08, 0x8E);
 	switch_page_directory(kernel_directory);
 }
 

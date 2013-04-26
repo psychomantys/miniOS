@@ -59,7 +59,7 @@ static KHeap *kheap_kfree_handler=0;
 
 void kheap_kfree(uint32_t p){
 	kdebug(8,"KHeap *kheap_kfree_handler=%p\n",kheap_kfree_handler);
-	kheap_kfree_handler->free(p);
+	kheap_kfree_handler->free( (void*)(p) );
 }
 
 static KHeap *kheap_kmalloc_handler=0;
