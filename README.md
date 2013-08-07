@@ -6,7 +6,7 @@ Small OS home made with C++, ***rebirth***!
 Features:
 ---------------------------
 
-- [ ] Directory Structure
+- [X] Directory Structure
 - [ ] Environment Configuration
 - [ ] Test?
 - [ ] Automatic Build
