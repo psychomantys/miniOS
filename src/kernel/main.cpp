@@ -37,13 +37,17 @@ class t{
 KMalloc auxxx( end_malloc_addr() );
 
 t x1(1);
+t x2(2);
 
 int main(){
 	GDT gdt;
 	IDT idt;
 
+
 	gdt.install();
+	kprintf("%i\n",(int)(__cplusplus));
 	idt.install();
+
 
 	IRQ irq( idt );
 	irq.install();
