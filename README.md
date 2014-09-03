@@ -7,7 +7,7 @@ Features:
 ---------------------------
 
 - [X] Directory Structure
-- [ ] Environment Configuration
+- [X] Environment Configuration
 - [ ] Test?
 - [ ] Automatic Build
 - [ ] Link
